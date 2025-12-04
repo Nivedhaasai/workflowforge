@@ -84,6 +84,20 @@ jobs:
           nohup node index.js > backend-e2e.log 2>&1 &
           sleep 8
 
+      - name: Wait for backend health
+        run: |
+          echo "Waiting for backend at http://127.0.0.1:5000/ ..."
+          for i in `seq 1 20`; do
+            if curl -sS --fail http://127.0.0.1:5000/ >/dev/null 2>&1; then
+              echo "Backend is up"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Backend did not respond in time, dumping backend-e2e.log"
+          tail -n +1 backend-e2e.log || true
+          exit 1
+
       - name: Install frontend deps and build
         run: |
           npm ci --prefix frontend
@@ -94,6 +108,19 @@ jobs:
           # serve built frontend on port 5173 for Playwright
           npx http-server frontend/dist -p 5173 -c-1 &
           sleep 5
+
+      - name: Wait for frontend
+        run: |
+          echo "Waiting for frontend at http://127.0.0.1:5173/ ..."
+          for i in `seq 1 20`; do
+            if curl -sS --fail http://127.0.0.1:5173/ >/dev/null 2>&1; then
+              echo "Frontend is up"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Frontend did not respond in time"
+          exit 1
 
       - name: Run E2E tests (API + UI)
         working-directory: ./e2e
