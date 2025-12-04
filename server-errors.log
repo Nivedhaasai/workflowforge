@@ -1,0 +1,42 @@
+REGISTER ERROR: 2025-12-04T05:09:51.161Z
+MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (C:\Users\91994\OneDrive - DAV BHEL Ranipet\Documents\WorkflowForge\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:185:23)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+
+LOGIN ERROR: 2025-12-04T05:10:01.224Z
+MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (C:\Users\91994\OneDrive - DAV BHEL Ranipet\Documents\WorkflowForge\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:185:23)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+
+REGISTER ERROR: 2025-12-04T05:20:17.277Z
+MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (C:\Users\91994\OneDrive - DAV BHEL Ranipet\Documents\WorkflowForge\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:185:23)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+
+LOGIN ERROR: 2025-12-04T05:20:27.326Z
+MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (C:\Users\91994\OneDrive - DAV BHEL Ranipet\Documents\WorkflowForge\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:185:23)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+
+LOGIN ERROR: 2025-12-04T06:34:57.239Z
+MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (C:\Users\91994\OneDrive - DAV BHEL Ranipet\Documents\WorkflowForge\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:185:23)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+
+LOGIN ERROR: 2025-12-04T06:35:37.796Z
+MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (C:\Users\91994\OneDrive - DAV BHEL Ranipet\Documents\WorkflowForge\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:185:23)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+
+LOGIN ERROR: 2025-12-04T06:35:54.517Z
+MongooseError: Operation `users.findOne()` buffering timed out after 10000ms
+    at Timeout.<anonymous> (C:\Users\91994\OneDrive - DAV BHEL Ranipet\Documents\WorkflowForge\node_modules\mongoose\lib\drivers\node-mongodb-native\collection.js:185:23)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+

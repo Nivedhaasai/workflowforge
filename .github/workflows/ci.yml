@@ -1,0 +1,101 @@
+name: CI - Smoke Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand({ ping: 1 })'" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install root dependencies
+        run: |
+          npm ci
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: |
+          npm ci
+
+      - name: Start backend in background
+        env:
+          MONGO_URI: mongodb://localhost:27017/workflowforge_ci
+          JWT_SECRET: testsecret
+        run: |
+          nohup node index.js > backend.log 2>&1 &
+          # give server a few seconds to start
+          sleep 4
+
+      - name: Run backend smoke tests
+        env:
+          MONGO_URI: mongodb://localhost:27017/workflowforge_ci
+          JWT_SECRET: testsecret
+        run: |
+          node test-step6-verify.js
+
+  e2e:
+    needs: smoke
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:6.0
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand({ ping: 1 })'" --health-interval=10s --health-timeout=5s --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install e2e dependencies
+        working-directory: ./e2e
+        run: |
+          npm install
+          npx playwright install --with-deps || true
+
+      - name: Start backend
+        env:
+          MONGO_URI: mongodb://localhost:27017/workflowforge_e2e
+          JWT_SECRET: e2e_secret
+        run: |
+          nohup node index.js > backend-e2e.log 2>&1 &
+          sleep 4
+
+      - name: Install frontend deps and build
+        run: |
+          npm ci --prefix frontend
+          npm run build --prefix frontend
+
+      - name: Serve frontend (static)
+        run: |
+          # serve built frontend on port 5173 for Playwright
+          npx http-server frontend/dist -p 5173 -c-1 &
+          sleep 2
+
+      - name: Run E2E tests (API + UI)
+        working-directory: ./e2e
+        env:
+          E2E_BASE_URL: http://localhost:5000
+          E2E_FRONTEND: http://localhost:5173
+        run: |
+          npx playwright test --reporter=list

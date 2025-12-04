@@ -1,0 +1,29 @@
+<svg width="400" height="88" viewBox="0 0 400 88" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="WorkflowForge logo">
+  <defs>
+    <linearGradient id="lg" x1="0" x2="1">
+      <stop offset="0%" stop-color="#00E6A8" />
+      <stop offset="100%" stop-color="#20C997" />
+    </linearGradient>
+    <filter id="f" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="18" flood-color="#00E6A8" flood-opacity="0.06" />
+    </filter>
+  </defs>
+
+  <!-- mark -->
+  <g transform="translate(8,8)">
+    <rect width="72" height="72" rx="14" fill="url(#lg)" filter="url(#f)" />
+    <g transform="translate(10,12) scale(0.9)" opacity="0.95">
+      <path d="M8 4h22a4 4 0 0 1 4 4v22a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8a4 4 0 0 1 4-4z" fill="#041014" opacity="0.06" />
+      <g transform="translate(3,3)">
+        <circle cx="12" cy="12" r="10" fill="#041014" opacity="0.04" />
+        <path d="M6 12h12M12 6v12" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
+      </g>
+    </g>
+  </g>
+
+  <!-- wordmark -->
+  <g transform="translate(100,56)">
+    <text x="0" y="0" fill="url(#lg)" font-family="Inter, Arial" font-weight="700" font-size="28">Workflow</text>
+    <text x="0" y="28" fill="#9EEFD0" font-family="Inter, Arial" font-weight="600" font-size="20">Forge</text>
+  </g>
+</svg>
