@@ -19,7 +19,7 @@ async function waitFor(url, timeout = 30000, interval = 1000) {
   return false
 }
 
-async function run() {
+async function smokeTest() {
   console.log('CI smoke: waiting for backend...')
   const ok = await waitFor(HEALTH, 30000, 1000)
   if (!ok) {
@@ -56,7 +56,8 @@ async function run() {
   }
 }
 
-run()
+// Start the lightweight smoke test
+smokeTest()
 (async () => {
   const base = 'http://localhost:5000';
   try {
