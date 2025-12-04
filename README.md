@@ -74,7 +74,7 @@ docker compose up --build -d
 
 Open the frontend in your browser and log in.
 
-Short demo script (2–3 minutes)
+Test:
 
 - Open Workflows, create a new workflow.
 - Open Builder, add a Text node, set its text and save.
@@ -142,7 +142,7 @@ Security checklist
 - Always set `JWT_SECRET` in production; do not commit secrets.
 - Set `FRONTEND_URL` to your frontend origin to restrict CORS.
 
-Recent work you should know about
+Recent work you:
 
 - Observable runs: Run model + runner persist step outputs so the UI can poll and show live progress.
 - UX polish: modal improvements, favicon + manifest, Run History modal, and Run Details modal with copy-to-clipboard for outputs.
