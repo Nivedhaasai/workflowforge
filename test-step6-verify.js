@@ -56,8 +56,16 @@ async function smokeTest() {
   }
 }
 
-// Start the lightweight smoke test
-smokeTest()
+// Export the smokeTest function so CI (or other runners) can require() and call it.
+module.exports = { smokeTest };
+
+// If the script is executed directly (node test-step6-verify.js), run the smoke test.
+if (require.main === module) {
+  smokeTest().catch(err => {
+    console.error('Smoke test failed:', err?.message || err);
+    process.exit(1);
+  });
+}
 (async () => {
   const base = 'http://localhost:5000';
   try {
