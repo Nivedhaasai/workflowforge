@@ -79,6 +79,7 @@ jobs:
           MONGO_URI: mongodb://localhost:27017/workflowforge_e2e
           JWT_SECRET: e2e_secret
           DISABLE_QUEUE: 'true'
+          HOST: '0.0.0.0'
         run: |
           nohup node index.js > backend-e2e.log 2>&1 &
           sleep 8
@@ -92,12 +93,12 @@ jobs:
         run: |
           # serve built frontend on port 5173 for Playwright
           npx http-server frontend/dist -p 5173 -c-1 &
-          sleep 2
+          sleep 5
 
       - name: Run E2E tests (API + UI)
         working-directory: ./e2e
         env:
-          E2E_BASE_URL: http://localhost:5000
-          E2E_FRONTEND: http://localhost:5173
+          E2E_BASE_URL: http://127.0.0.1:5000
+          E2E_FRONTEND: http://127.0.0.1:5173
         run: |
           npx playwright test --reporter=list
