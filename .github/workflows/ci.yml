@@ -38,6 +38,7 @@ jobs:
         env:
           MONGO_URI: mongodb://localhost:27017/workflowforge_ci
           JWT_SECRET: testsecret
+          DISABLE_QUEUE: 'true'
         run: |
           nohup node index.js > backend.log 2>&1 &
           # give server a few seconds to start
@@ -77,6 +78,7 @@ jobs:
         env:
           MONGO_URI: mongodb://localhost:27017/workflowforge_e2e
           JWT_SECRET: e2e_secret
+          DISABLE_QUEUE: 'true'
         run: |
           nohup node index.js > backend-e2e.log 2>&1 &
           sleep 8
