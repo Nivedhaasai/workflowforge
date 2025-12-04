@@ -10,6 +10,7 @@ const { seedDefaultUser } = require('./seed')
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || '::'; // bind to IPv6 unspecified to accept IPv6 and IPv4 on most systems
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/workflowforge';
 const FRONTEND_URL = process.env.FRONTEND_URL || process.env.CLIENT_URL || null;
 
@@ -53,6 +54,18 @@ app.use('/api/workflows', workflowRoutes);
 app.use('/api/runs', runRoutes);
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`✓ Server running on http://localhost:${PORT}`);
+const server = app.listen(PORT, HOST, () => {
+  const addr = server.address();
+  const hostForLog = addr && addr.address ? addr.address : HOST;
+  console.log(`✓ Server running on http://${hostForLog}:${PORT}`);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err?.message || err);
+  console.error(err?.stack || 'no stack');
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection:', reason);
 });
