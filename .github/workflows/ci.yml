@@ -41,7 +41,7 @@ jobs:
         run: |
           nohup node index.js > backend.log 2>&1 &
           # give server a few seconds to start
-          sleep 4
+          sleep 8
 
       - name: Run backend smoke tests
         env:
@@ -79,7 +79,7 @@ jobs:
           JWT_SECRET: e2e_secret
         run: |
           nohup node index.js > backend-e2e.log 2>&1 &
-          sleep 4
+          sleep 8
 
       - name: Install frontend deps and build
         run: |
