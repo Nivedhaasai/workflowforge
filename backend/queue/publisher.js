@@ -1,7 +1,7 @@
-const { Queue } = require('bullmq');
-const IORedis = require('ioredis');
-
-const DISABLE_QUEUE = process.env.DISABLE_QUEUE === 'true' || process.env.DISABLE_QUEUE === '1';
+const DISABLE_QUEUE =
+  process.env.DISABLE_QUEUE === 'true' ||
+  process.env.DISABLE_QUEUE === '1' ||
+  (!process.env.REDIS_URL && !process.env.REDIS_HOST);
 
 if (DISABLE_QUEUE) {
   console.log('DISABLE_QUEUE is set; queue producer disabled')
@@ -12,6 +12,8 @@ if (DISABLE_QUEUE) {
     isQueueEnabled: false,
   }
 } else {
+  const { Queue } = require('bullmq');
+  const IORedis = require('ioredis');
   const REDIS_URL = process.env.REDIS_URL || null;
   const REDIS_HOST = process.env.REDIS_HOST || '127.0.0.1';
   const REDIS_PORT = process.env.REDIS_PORT ? parseInt(process.env.REDIS_PORT, 10) : 6379;
