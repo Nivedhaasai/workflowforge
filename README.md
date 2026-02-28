@@ -1,65 +1,58 @@
-<div align="center">
+# WorkflowForge
 
-# 🔀 WorkflowForge
+A full-stack workflow automation platform where you can visually build multi-step workflows, run them, and track every execution in real time. I built this to learn how workflow engines actually work under the hood — how nodes get chained, how approvals pause execution, how a runner processes steps sequentially, and how to wire all of that into a clean React frontend.
 
-**Visual workflow automation platform — design, execute, and monitor multi-step automations in minutes.**
+This isn't a toy project. It has proper auth, a drag-and-drop builder, a real execution engine, dark mode, Docker support, and CI. I wanted something I could actually deploy and show to people.
 
-[![Node.js](https://img.shields.io/badge/Node.js-20+-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)](https://react.dev/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-6.0-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-</div>
+![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=nodedotjs&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-6.0-47A248?logo=mongodb&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D4?logo=tailwindcss&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 ---
 
-## ✨ What is WorkflowForge?
+## What it does
 
-WorkflowForge is a **Kissflow-inspired** SaaS workflow automation platform that lets teams design, run, and monitor multi-step workflows through a beautiful drag-and-drop interface. Built as a production-quality full-stack application demonstrating modern web architecture patterns.
+You create a workflow by dragging nodes onto a canvas. Each node does something — send a text message, make an HTTP request, wait for a few seconds, branch on a condition, or pause and wait for a human to approve. Once you're happy with the flow, you hit Run, and the engine processes each node one by one. You can watch the steps complete in real time, see their outputs, and if something fails, you see exactly where it broke.
 
-### Key Features
+There's also a dashboard that shows stats across all your workflows and runs, a run history page with filters, pre-built templates you can clone, and a full dark/light theme that persists across sessions.
 
-| Feature | Description |
-|---------|-------------|
-| 🎨 **Visual Workflow Builder** | Drag-and-drop canvas with 7 node types across 4 categories |
-| ▶️ **One-Click Execution** | Run workflows instantly with real-time step-by-step progress |
-| ✅ **Human-in-the-Loop Approvals** | Pause workflows at approval gates — approve or reject from the UI |
-| 📊 **Dashboard & Analytics** | Live stats — total workflows, runs, success rates, pending approvals |
-| 🏃 **Run History Page** | Filterable list of all runs across workflows with status tabs |
-| 📋 **Pre-Built Templates** | Clone from a library of starter workflows to get productive fast |
-| 🌙 **Dark / Light Mode** | System-aware theme toggle with `localStorage` persistence — every page |
-| 🔐 **JWT Authentication** | Secure user accounts with token-based auth + auto-refresh interceptors |
-| 🐳 **Docker-Ready** | One-command deployment with Docker Compose |
+### Node types
 
-### Supported Node Types
-
-| Category | Nodes | Description |
-|----------|-------|-------------|
-| **Triggers** | `trigger` | Entry point — starts the workflow |
-| **Actions** | `text`, `http`, `delay` | Output text, make HTTP requests, wait N seconds |
-| **Logic** | `condition`, `transform` | Branch on conditions, transform data with templates |
-| **Approvals** | `approval` | Pause for human review — approve or reject |
+| Type | What it does |
+|------|-------------|
+| **Trigger** | Entry point — every workflow starts with one |
+| **Text** | Outputs a configured message |
+| **HTTP Request** | Makes a GET/POST/etc. request to any URL, returns the response |
+| **Delay** | Waits for N seconds before continuing |
+| **Condition** | Evaluates a field against a value, decides whether to continue |
+| **Approval** | Pauses the run and waits for someone to approve or reject |
+| **Transform** | Applies a template transformation to the data |
 
 ---
 
-## 🖥️ Screenshots
+## Tech stack
 
-| Dashboard | Workflow Builder | Run Details |
-|:---------:|:----------------:|:-----------:|
-| Stats, recent runs, quick actions | Drag-and-drop with node inspector | Step timeline with live status |
+**Frontend:** React 18 with Vite, Tailwind CSS (class-based dark mode), Framer Motion for animations, @dnd-kit for drag-and-drop, Axios with request/response interceptors
+
+**Backend:** Node.js 20, Express, Mongoose ODM, JWT auth with bcrypt password hashing, rate limiting on auth routes
+
+**Database:** MongoDB 6.0
+
+**DevOps:** Docker + Docker Compose, Nginx for serving the frontend, GitHub Actions CI pipeline, Playwright E2E tests
 
 ---
 
-## 🚀 Quick Start
+## Getting started
 
-### Prerequisites
+### What you need
 
-- **Node.js 20+** (for native `fetch` support)
-- **MongoDB** running locally or via connection string
-- **npm** or **yarn**
+- Node.js 20+ (uses native `fetch` in the workflow runner)
+- MongoDB running locally or a remote connection string
+- npm
 
-### 1. Clone & Install
+### Setup
 
 ```bash
 git clone https://github.com/Nivedhaasai/workflowforge.git
@@ -68,159 +61,173 @@ npm ci
 cd frontend && npm ci && cd ..
 ```
 
-### 2. Configure Environment
+Create a `.env` file in the root:
 
-Create `.env` in the project root:
-
-```env
+```
 MONGO_URI=mongodb://localhost:27017/workflowforge
-JWT_SECRET=your_secure_secret_here
+JWT_SECRET=pick_something_random_here
 PORT=5000
 FRONTEND_URL=http://localhost:5173
 ```
 
-### 3. Start Development Servers
+### Running locally
+
+Start the backend:
 
 ```bash
-# Terminal 1 — Backend API (auto-seeds demo user + 2 demo workflows)
-node index.js
-
-# Terminal 2 — Frontend (Vite dev server)
-cd frontend && npm run dev
+npm run dev
 ```
 
-Open **http://localhost:5173** and log in.
+In a separate terminal, start the frontend:
 
-> **Demo credentials:** `nive@2809.com` / `nive2809`  
-> Two demo workflows ("Hello World Pipeline" and "API Fetch & Approval") are seeded automatically on first run.
+```bash
+cd frontend
+npm run dev
+```
 
----
+Go to **http://localhost:5173**. Register a new account or use the seeded account — when the backend starts for the first time, it creates a default user and two demo workflows automatically so you have something to play with right away.
 
-## 🐳 Docker Deployment
+### Running with Docker
 
 ```bash
 docker compose up --build -d
 ```
 
-| Service | Port | Description |
-|---------|------|-------------|
-| Frontend | `5173` | Nginx serving React SPA |
-| Backend | `5000` | Express API server |
-| MongoDB | `27017` | Database |
+This spins up three containers — MongoDB, the backend API, and the frontend served through Nginx. Frontend is on port 5173, backend on 5000.
 
-The frontend Dockerfile accepts a `VITE_API_URL` build argument (defaults to `http://localhost:5000`). Override it in `docker-compose.yml` when deploying to a remote host.
-
-The frontend Dockerfile includes nginx SPA routing — all client-side routes work on page refresh.
+If you're deploying somewhere other than localhost, update the `VITE_API_URL` build arg in `docker-compose.yml` to point to your backend URL.
 
 ---
 
-## 📡 API Reference
-
-All endpoints require `Authorization: Bearer <token>` except auth routes.
-
-### Authentication
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/auth/register` | Register a new user |
-| `POST` | `/api/auth/login` | Login — returns JWT |
-
-### Workflows
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/workflows` | List user's workflows |
-| `POST` | `/api/workflows` | Create a workflow |
-| `GET` | `/api/workflows/:id` | Get workflow details |
-| `PUT` | `/api/workflows/:id` | Update a workflow |
-| `DELETE` | `/api/workflows/:id` | Delete a workflow |
-| `POST` | `/api/workflows/:id/run` | Execute a workflow (returns `202` + `runId`) |
-| `GET` | `/api/workflows/:id/runs` | List runs for a workflow |
-
-### Runs
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/runs` | List all runs for the current user |
-| `GET` | `/api/runs/:id` | Get run details with per-step results |
-| `POST` | `/api/runs/:id/approve` | Approve or reject a pending approval step |
-
-### Templates & Dashboard
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/workflows/templates` | List available templates |
-| `POST` | `/api/workflows/from-template/:id` | Clone a template as a new workflow |
-| `GET` | `/api/workflows/dashboard/stats` | Dashboard statistics |
-
----
-
-## 🏗️ Architecture
-
-```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│   React SPA  │────▶│  Express API │────▶│   MongoDB    │
-│  (Vite + TW) │     │  (REST/JWT)  │     │  (Mongoose)  │
-└──────────────┘     └──────┬───────┘     └──────────────┘
-                            │
-                     ┌──────▼───────┐
-                     │   Workflow    │
-                     │   Runner     │
-                     │ (sequential) │
-                     └──────────────┘
-```
-
-### Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | React 18, Vite 5, Tailwind CSS 3.4 (`darkMode: 'class'`), Framer Motion, @dnd-kit |
-| **Backend** | Node.js 20, Express, Mongoose, JWT (jsonwebtoken) |
-| **Database** | MongoDB 6.0 |
-| **DevOps** | Docker, Docker Compose, Nginx, GitHub Actions CI |
-| **Testing** | Playwright (E2E), smoke scripts |
-
-### Project Structure
+## How the project is structured
 
 ```
 workflowforge/
-├── index.js                 # Express entry point
-├── models/                  # Mongoose schemas (User, Workflow, Run)
-├── routes/                  # API routes (auth, workflows, runs)
-├── middleware/               # JWT auth middleware
+├── index.js                    # Express server setup, middleware, routes
+├── models/                     # Mongoose schemas — User, Workflow, Run
+├── routes/                     # REST endpoints — auth, workflows, runs
+├── middleware/                  # JWT verification middleware
 ├── backend/
-│   ├── seed.js              # Auto-seed user + demo workflows
-│   ├── services/            # Workflow runner engine
-│   └── queue/               # Queue publisher (BullMQ-ready)
+│   ├── seed.js                 # Creates default user + demo workflows on first boot
+│   ├── services/
+│   │   └── workflowRunner.js   # The actual engine that processes nodes
+│   ├── queue/
+│   │   └── publisher.js        # BullMQ publisher (ready but optional)
+│   └── templates.js            # Pre-built workflow templates
 ├── frontend/
 │   ├── src/
-│   │   ├── pages/           # Route pages (Dashboard, Builder, RunsPage, etc.)
-│   │   ├── components/      # Reusable UI (ThemeToggle, NodeCard, Modal, …)
-│   │   ├── context/         # AuthContext + ThemeContext providers
-│   │   ├── services/        # API client functions
-│   │   └── utils/           # Axios instance with interceptors
-│   ├── nginx.conf           # SPA routing config
-│   └── Dockerfile           # Multi-stage build
-├── docker-compose.yml       # Full-stack orchestration
-├── scripts/                 # Dev seed, smoke tests
-└── e2e/                     # Playwright E2E tests
+│   │   ├── pages/              # Dashboard, Builder, Workflows, RunsPage, etc.
+│   │   ├── components/         # NodeCard, Modal, StatusPill, ThemeToggle, etc.
+│   │   ├── context/            # AuthContext (JWT + user state), ThemeContext
+│   │   ├── services/           # API wrapper functions for every endpoint
+│   │   ├── utils/              # Axios instance with interceptors
+│   │   └── layout/             # Layout shell, ProtectedRoute wrapper
+│   ├── nginx.conf              # SPA-friendly Nginx config
+│   └── Dockerfile              # Multi-stage build (npm ci → vite build → nginx)
+├── scripts/
+│   ├── dev-seed.js             # Standalone seeder for dev/testing
+│   ├── test-smoke.ps1          # Windows smoke test
+│   └── test-smoke.sh           # Linux/macOS smoke test
+├── e2e/                        # Playwright tests (API + UI)
+├── docker-compose.yml
+├── nodemon.json
+└── .github/workflows/ci.yml   # CI — smoke tests + E2E on every push
 ```
 
 ---
 
-## 🧪 Testing
+## API endpoints
 
-### Smoke Tests
+All routes except `/api/auth/*` require a `Bearer` token in the `Authorization` header.
+
+### Auth
+
+```
+POST  /api/auth/register     → { token, user }
+POST  /api/auth/login        → { token, user }
+GET   /api/auth/me           → { id, name, email }
+```
+
+### Workflows
+
+```
+GET    /api/workflows                          → list all your workflows
+POST   /api/workflows                          → create a new workflow
+GET    /api/workflows/:id                      → get one workflow with nodes
+PUT    /api/workflows/:id                      → update name/description
+DELETE /api/workflows/:id                      → delete workflow
+
+POST   /api/workflows/:id/nodes               → add a node
+PUT    /api/workflows/:id/nodes/:nodeId        → update a node's config
+DELETE /api/workflows/:id/nodes/:nodeId        → remove a node
+PATCH  /api/workflows/:id/nodes/reorder        → reorder nodes by id array
+
+POST   /api/workflows/:id/run                  → start execution → 202 + runId
+GET    /api/workflows/:id/runs                 → list runs for this workflow
+```
+
+### Runs
+
+```
+GET   /api/runs                → all your runs across all workflows
+GET   /api/runs/:id            → full run detail with step-by-step results
+POST  /api/runs/:id/approve    → approve or reject a pending approval
+```
+
+### Templates & Dashboard
+
+```
+GET   /api/workflows/templates              → list starter templates
+POST  /api/workflows/from-template/:id      → clone a template
+GET   /api/workflows/dashboard/stats        → workflow count, run count, success rate
+```
+
+---
+
+## How the workflow engine works
+
+This was the most interesting part to build. When you hit "Run" on a workflow:
+
+1. A new `Run` document is created in MongoDB with status `running`
+2. The runner loads the workflow and iterates through nodes in order
+3. For each node, it creates a step entry, executes the node's logic, and records the result
+4. If a node is an **approval**, execution pauses — the run status becomes `waiting_approval` and it saves to the database. When someone approves via the API, the runner picks up from where it left off
+5. If any node fails, the run is marked `failed` with the error message
+6. Once all nodes complete, the run is marked `completed` with the total duration
+
+The runner supports these execution types:
+- **trigger** — logs the start timestamp
+- **text** — returns the configured message string
+- **delay** — waits using `setTimeout` wrapped in a promise
+- **http** — uses Node.js native `fetch` to make real HTTP calls
+- **condition** — evaluates field-operator-value against previous output
+- **approval** — saves state and exits, resumes on `POST /approve`
+
+There's also a BullMQ queue publisher wired up. Right now execution runs in-process, but the architecture is set up so you could push runs to Redis and have separate worker processes handle them. I documented the plan in [docs/QUEUE_PLAN.md](docs/QUEUE_PLAN.md).
+
+---
+
+## Dark mode
+
+I implemented dark mode using Tailwind's `class` strategy. There's a `ThemeContext` that reads from `localStorage` on first load (falls back to the system's `prefers-color-scheme`), and a toggle button in the sidebar. Every single component and page has dark variants — I went through all of them manually.
+
+---
+
+## Testing
+
+### Smoke tests
 
 ```bash
-# PowerShell (Windows)
+# Windows
 .\scripts\test-smoke.ps1
 
-# Bash (macOS / Linux / WSL)
+# Linux / macOS
 ./scripts/test-smoke.sh
 ```
 
-### E2E Tests (Playwright)
+These start the backend, hit the health endpoint, register a user, login, and fetch workflows. Quick sanity check.
+
+### E2E with Playwright
 
 ```bash
 cd e2e
@@ -229,35 +236,41 @@ npx playwright install --with-deps
 npx playwright test
 ```
 
----
+### CI
 
-## 🔒 Security
-
-- JWT tokens stored in `localStorage` with `Bearer` auth header
-- CORS restricted to `FRONTEND_URL` origin
-- Passwords hashed with bcrypt (10 salt rounds)
-- Never commit `.env` — use environment variables in production
+The GitHub Actions workflow runs on every push to `main` — it starts MongoDB as a service, boots the backend, runs smoke tests, then builds the frontend and runs Playwright E2E tests.
 
 ---
 
-## 📈 Scaling Notes
+## Security notes
 
-The in-process sequential runner works well for demos and moderate workloads. For production scale:
-
-- **Queue-based execution**: Push runs to Redis (BullMQ) and process with dedicated workers — see [QUEUE_PLAN.md](docs/QUEUE_PLAN.md)
-- **Horizontal scaling**: Separate API and worker processes behind a load balancer
-- **Static hosting**: Serve the built frontend from a CDN (Cloudflare, Vercel, Netlify)
-- **Database**: Add MongoDB indexes on `workflow.user`, `run.workflow`, `run.status`
-
----
-
-## 📄 License
-
-MIT — see [LICENSE](LICENSE) for details.
+- Passwords are hashed with bcrypt (10 rounds) and never stored in plain text
+- JWT tokens expire after 7 days
+- Auth routes are rate-limited (20 requests per 15-minute window)
+- CORS is restricted to `FRONTEND_URL` in production
+- The Axios interceptor auto-attaches the token to every request and logs the user out on 401 responses
+- Frontend routes are wrapped in a `ProtectedRoute` component that redirects to login if there's no valid session
 
 ---
 
-<div align="center">
-  <strong>Built with ❤️ by <a href="https://github.com/Nivedhaasai">Nivedhaasai</a></strong>
-</div>
+## What I'd do next
+
+If I were to keep building on this:
+
+- **Webhooks** — trigger workflows from external services via webhook URL
+- **Parallel branches** — let condition nodes fork into parallel paths
+- **Versioning** — save workflow versions so you can roll back
+- **Notifications** — email/Slack when a run completes or needs approval
+- **Execution logs** — persistent logs with search and filtering
+- **Role-based access** — team workspaces with admin/editor/viewer roles
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+---
+
+Built by [Nivedhaasai](https://github.com/Nivedhaasai)
 
