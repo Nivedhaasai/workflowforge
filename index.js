@@ -44,6 +44,10 @@ app.get('/', (req, res) => {
   res.json({ message: 'workflowforge api is running' });
 });
 
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', uptime: Math.floor(process.uptime()) });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/workflows', workflowRoutes);
 app.use('/api/runs', runRoutes);
@@ -52,6 +56,15 @@ const server = app.listen(PORT, HOST, () => {
   const addr = server.address();
   const hostForLog = addr && addr.address ? addr.address : HOST;
   console.log(`✓ Server running on http://${hostForLog}:${PORT}`);
+
+  // Keep-alive: ping ourselves every 14 min to prevent Render free tier cold starts
+  if (process.env.RENDER_EXTERNAL_URL) {
+    const url = `${process.env.RENDER_EXTERNAL_URL}/api/health`;
+    setInterval(() => {
+      fetch(url).catch(() => {});
+    }, 14 * 60 * 1000);
+    console.log(`✓ Keep-alive enabled → ${url} every 14m`);
+  }
 });
 
 process.on('uncaughtException', (err) => {
