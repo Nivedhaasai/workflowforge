@@ -171,7 +171,7 @@ export default function Landing() {
       <footer className="py-8 bg-white dark:bg-slate-950">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6">
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            WorkflowForge — A Kissflow-inspired workflow automation platform
+            WorkflowForge — A visual workflow automation platform
           </p>
           <a href="https://github.com/Nivedhaasai/workflowforge" target="_blank" rel="noopener noreferrer" className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 transition-colors text-sm font-medium">
             GitHub →
