@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import Modal from './Modal'
 import LoadingSpinner from './LoadingSpinner'
-import { getRun } from '../services/workflows'
+import StatusPill from './StatusPill'
+import { getRun, approveRun } from '../services/workflows'
 import toast from 'react-hot-toast'
 
 export default function RunDetails({ runId, open, onClose }){
@@ -21,6 +22,7 @@ export default function RunDetails({ runId, open, onClose }){
   },[runId])
 
   useEffect(()=>{ if(open) load() },[open, load])
+
   // Poll run details while run is running
   useEffect(()=>{
     if(!open || !runId) return
@@ -31,28 +33,22 @@ export default function RunDetails({ runId, open, onClose }){
         const data = await getRun(runId)
         if(!mounted) return
         setRun(data)
-        if(data.status === 'running'){
-          // keep polling
-        } else {
-          // stop polling
+        if(data.status !== 'running'){
           if(timer) clearInterval(timer)
         }
       }catch(e){
         console.error('Poll run failed', e)
       }
     }
-
-    // initial load
     poll()
     timer = setInterval(poll, 1500)
-
     return ()=>{ mounted = false; if(timer) clearInterval(timer) }
-  },[open, runId, getRun])
+  },[open, runId])
 
   function renderResult(r){
-    if(r === null || r === undefined) return <span className="text-muted">—</span>
-    if(typeof r === 'object') return <pre className="bg-surface/20 p-2 rounded text-xs overflow-auto">{JSON.stringify(r,null,2)}</pre>
-    return <div className="text-sm">{String(r)}</div>
+    if(r === null || r === undefined) return <span className="text-slate-400">—</span>
+    if(typeof r === 'object') return <pre className="bg-slate-50 p-3 rounded-xl text-xs overflow-auto border border-slate-100">{JSON.stringify(r,null,2)}</pre>
+    return <div className="text-sm text-slate-700">{String(r)}</div>
   }
 
   async function copyText(text){
@@ -62,61 +58,122 @@ export default function RunDetails({ runId, open, onClose }){
     }catch(e){ toast.error('Copy failed') }
   }
 
+  async function handleApprovalDecision(decision){
+    try{
+      await approveRun(runId, decision, '')
+      toast.success(`Workflow ${decision}!`)
+      load()
+    }catch(e){
+      toast.error('Failed to submit decision')
+    }
+  }
+
+  const NODE_ICONS = {
+    trigger: '🚀', text: '📝', delay: '⏱️', http: '🌐',
+    condition: '🔀', approval: '✅', transform: '🔧'
+  }
+
   return (
-    <Modal open={open} title={run ? `Run ${run.id || ''}` : 'Run details'} onClose={onClose} primary={null} secondary={null}>
+    <Modal open={open} title={run ? `Run ${String(run.id || '').slice(-8)}` : 'Run details'} onClose={onClose} primary={null} secondary={null}>
       {loading ? (
         <div className="p-4"><LoadingSpinner /></div>
       ) : (!run) ? (
-        <div className="p-4 text-center text-sm text-muted">No run data available.</div>
+        <div className="p-4 text-center text-sm text-slate-400">No run data available.</div>
       ) : (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <div>
-              <div className="font-medium">Status: <span className="ml-2">{run.status}</span></div>
-              <div className="text-xs text-muted">{new Date(run.createdAt).toLocaleString()}</div>
+            <div className="flex items-center gap-3">
+              <StatusPill status={run.status} />
+              <span className="text-xs text-slate-400">{new Date(run.createdAt).toLocaleString()}</span>
             </div>
-            <div className="text-sm text-muted">{run.durationMs != null ? `${run.durationMs} ms` : '-'}</div>
+            <div className="text-sm text-slate-500">{run.durationMs != null ? `${(run.durationMs / 1000).toFixed(1)}s` : '—'}</div>
           </div>
 
+          {/* Approval action banner */}
+          {run.status === 'waiting_approval' && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <div className="text-sm font-semibold text-amber-800 mb-2">⏳ Waiting for Approval</div>
+              <p className="text-xs text-amber-600 mb-3">This workflow is paused and waiting for a human decision.</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleApprovalDecision('approved')}
+                  className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-emerald-700 transition">
+                  ✓ Approve
+                </button>
+                <button
+                  onClick={() => handleApprovalDecision('rejected')}
+                  className="bg-red-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-red-600 transition">
+                  ✗ Reject
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Steps timeline */}
           <div className="space-y-3">
             {(run.results || run.steps || []).map((s, i) => {
-              // support different shapes: older runs may use `results` or `steps`
               const step = s || {}
               const nodeId = step.nodeId || step.node || 'unknown'
+              const nodeType = step.nodeType || step.type || ''
               const status = step.status
-              const startedAt = step.startedAt
-              const endedAt = step.endedAt
               const output = step.result ?? step.output ?? null
               const error = step.error ?? null
+              const icon = NODE_ICONS[nodeType] || '▦'
 
               return (
-                <div key={i} className="p-3 border rounded bg-surface/30">
+                <div key={i} className="bg-white border border-slate-200 rounded-xl p-4">
                   <div className="flex justify-between items-start gap-3">
-                    <div>
-                      <div className="font-medium">Node: <span className="text-sm">{nodeId}</span></div>
-                      <div className="text-xs text-muted">{status} • {startedAt ? new Date(startedAt).toLocaleString() : '-'} → {endedAt ? new Date(endedAt).toLocaleString() : '-'}</div>
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                      {error ? <div className="text-sm text-red-400">Error</div> : <div className="text-sm text-green-300">{status}</div>}
-                      <div className="flex gap-2">
-                        <button type="button" onClick={()=>copyText(output ?? error)} className="btn-secondary text-xs">Copy</button>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-sm">
+                        {icon}
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-slate-800">
+                          {step.label || nodeType || nodeId}
+                        </div>
+                        <div className="text-xs text-slate-400 mt-0.5">
+                          <StatusPill status={status} />
+                        </div>
                       </div>
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => copyText(output ?? error)}
+                      className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition font-medium"
+                    >
+                      Copy
+                    </button>
                   </div>
 
                   <div className="mt-3">
                     {error ? (
                       <div>
-                        <div className="text-xs font-medium mb-1">Error</div>
-                        <pre className="bg-surface/10 p-2 rounded text-xs overflow-auto">{String(error)}</pre>
+                        <div className="text-xs font-medium text-red-600 mb-1">Error</div>
+                        <pre className="bg-red-50 text-red-700 p-3 rounded-xl text-xs overflow-auto border border-red-100">{String(error)}</pre>
                       </div>
                     ) : (
                       <div>
-                        <div className="text-xs font-medium mb-1">Result</div>
+                        <div className="text-xs font-medium text-slate-500 mb-1">Output</div>
                         {renderResult(output)}
                       </div>
                     )}
                   </div>
+
+                  {/* Approval buttons for individual pending approval step */}
+                  {nodeType === 'approval' && status === 'pending' && run.status === 'waiting_approval' && (
+                    <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100">
+                      <button
+                        onClick={() => handleApprovalDecision('approved')}
+                        className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-emerald-700 transition">
+                        ✓ Approve
+                      </button>
+                      <button
+                        onClick={() => handleApprovalDecision('rejected')}
+                        className="bg-red-500 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-red-600 transition">
+                        ✗ Reject
+                      </button>
+                    </div>
+                  )}
                 </div>
               )
             })}

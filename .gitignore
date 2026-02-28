@@ -5,3 +5,4 @@ node_modules/
 *.log
 debug-*.js
 test-step*.js
+frontend/dist/

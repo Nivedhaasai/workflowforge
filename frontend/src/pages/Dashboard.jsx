@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getDashboardStats } from '../services/workflows'
 import StatusPill from '../components/StatusPill'
-import { SkeletonStat, SkeletonRow } from '../components/SkeletonLoader'
+import StatCard from '../components/StatCard'
 import toast from 'react-hot-toast'
 
 export default function Dashboard() {
@@ -28,17 +28,8 @@ export default function Dashboard() {
     load()
   }, [])
 
-  const statCards = stats
-    ? [
-        { label: 'Total Workflows', value: stats.totalWorkflows, icon: '🔀', color: 'text-indigo-600', bg: 'bg-indigo-50' },
-        { label: 'Total Runs', value: stats.totalRuns, icon: '▶️', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-        { label: 'Success Rate', value: `${stats.successRate}%`, icon: '✅', color: 'text-emerald-600', bg: 'bg-emerald-50' },
-        { label: 'Pending Approvals', value: stats.pendingApprovals, icon: '🕐', color: 'text-amber-600', bg: 'bg-amber-50' },
-      ]
-    : []
-
   return (
-    <div>
+    <div className="p-8 max-w-6xl">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">
           Welcome back{user ? `, ${user.name}` : ''}
@@ -47,20 +38,33 @@ export default function Dashboard() {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
         {loading
-          ? Array.from({ length: 4 }).map((_, i) => <SkeletonStat key={i} />)
-          : statCards.map((s, i) => (
-              <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${s.bg}`}>
-                    {s.icon}
-                  </div>
-                </div>
-                <div className={`text-3xl font-bold ${s.color}`}>{s.value}</div>
-                <div className="text-sm text-slate-500 mt-1">{s.label}</div>
-              </div>
-            ))}
+          ? Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-28 bg-slate-200 rounded-2xl animate-pulse" />)
+          : (
+            <>
+              <StatCard icon="🔀" label="Total Workflows" value={stats?.totalWorkflows ?? 0} color="indigo" />
+              <StatCard icon="▶️" label="Total Runs" value={stats?.totalRuns ?? 0} color="blue" />
+              <StatCard icon="✅" label="Success Rate" value={`${stats?.successRate ?? 0}%`} color="emerald" />
+              <StatCard icon="⏳" label="Pending Approvals" value={stats?.pendingApprovals ?? 0} color="amber" />
+            </>
+          )}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="flex gap-4 mb-10">
+        <button onClick={() => navigate('/workflows/new')}
+          className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition text-sm">
+          + New Workflow
+        </button>
+        <button onClick={() => navigate('/templates')}
+          className="border border-slate-300 text-slate-700 px-5 py-2.5 rounded-xl font-semibold hover:bg-slate-50 transition text-sm">
+          Browse Templates
+        </button>
+        <button onClick={() => navigate('/workflows')}
+          className="border border-slate-300 text-slate-700 px-5 py-2.5 rounded-xl font-semibold hover:bg-slate-50 transition text-sm">
+          View All Workflows
+        </button>
       </div>
 
       {/* Recent Runs */}
@@ -70,7 +74,13 @@ export default function Dashboard() {
         </div>
         {loading ? (
           <div className="divide-y divide-slate-100">
-            {Array.from({ length: 3 }).map((_, i) => <SkeletonRow key={i} />)}
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="px-6 py-4 flex gap-4">
+                <div className="h-4 w-32 bg-slate-200 rounded animate-pulse" />
+                <div className="h-4 w-20 bg-slate-200 rounded animate-pulse" />
+                <div className="h-4 w-28 bg-slate-200 rounded animate-pulse" />
+              </div>
+            ))}
           </div>
         ) : !stats?.recentRuns?.length ? (
           <div className="p-12 text-center">
@@ -116,18 +126,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Quick Actions */}
-      <div className="flex flex-wrap gap-3">
-        <button onClick={() => navigate('/workflows/new')} className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
-          + New Workflow
-        </button>
-        <button onClick={() => navigate('/templates')} className="border-2 border-slate-300 text-slate-700 px-5 py-2.5 rounded-xl font-semibold hover:border-indigo-300 hover:text-indigo-600 transition-colors">
-          Browse Templates
-        </button>
-        <button onClick={() => navigate('/runs')} className="border-2 border-slate-300 text-slate-700 px-5 py-2.5 rounded-xl font-semibold hover:border-indigo-300 hover:text-indigo-600 transition-colors">
-          View All Runs
-        </button>
-      </div>
+
     </div>
   )
 }

@@ -45,44 +45,43 @@ export default function EditWorkflow(){
     }finally{ setSaving(false) }
   }
 
-  if(loading) return <div className="p-6"><div className="h-24 animate-pulse bg-surface/30 rounded-lg" /></div>
+  if(loading) return <div className="p-8"><div className="h-24 animate-pulse bg-slate-200 rounded-2xl" /></div>
 
   if(!workflow) return (
-    <div className="p-6">
-      <div className="bg-surface/40 border border-gray-700 rounded-xl p-8 text-center">
-        <h3 className="text-lg font-medium mb-2">Workflow not found</h3>
-        <p className="text-sm text-muted">This workflow may have been deleted or is inaccessible.</p>
+    <div className="p-8">
+      <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
+        <div className="text-4xl mb-3">🔍</div>
+        <h3 className="text-lg font-semibold text-slate-900 mb-2">Workflow not found</h3>
+        <p className="text-sm text-slate-500">This workflow may have been deleted or is inaccessible.</p>
       </div>
     </div>
   )
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold">Edit Workflow</h1>
-          <p className="text-sm text-muted">Editing workflow <strong>{id}</strong></p>
-        </div>
+    <div className="p-8 max-w-2xl">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-slate-900">Edit Workflow</h1>
+        <p className="text-sm text-slate-500 mt-1">Update your workflow details</p>
       </div>
 
-      <form onSubmit={handleSave} className="card p-6 max-w-2xl">
-        <div className="space-y-4">
+      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="block text-sm mb-1">Name</label>
-            <input className="input w-full" value={name} onChange={e=>setName(e.target.value)} />
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Name</label>
+            <input className="w-full bg-slate-50 border border-slate-200 px-3 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition" value={name} onChange={e=>setName(e.target.value)} />
           </div>
 
           <div>
-            <label className="block text-sm mb-1">Description</label>
-            <textarea className="input w-full h-28" value={description} onChange={e=>setDescription(e.target.value)} />
+            <label className="block text-sm font-medium text-slate-700 mb-1.5">Description</label>
+            <textarea className="w-full bg-slate-50 border border-slate-200 px-3 py-2.5 rounded-xl text-sm h-28 resize-none focus:outline-none focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400 transition" value={description} onChange={e=>setDescription(e.target.value)} />
           </div>
 
-          <div className="flex gap-3">
-            <button type="submit" className="btn-primary" disabled={saving}>{saving ? 'Saving...' : 'Save changes'}</button>
-            <button type="button" className="btn-secondary" onClick={()=>navigate('/workflows')}>Cancel</button>
+          <div className="flex gap-3 pt-2">
+            <button type="submit" className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-indigo-700 transition disabled:opacity-50" disabled={saving}>{saving ? 'Saving...' : 'Save changes'}</button>
+            <button type="button" onClick={()=>navigate('/workflows')} className="border border-slate-200 text-slate-700 px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-slate-50 transition">Cancel</button>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   )
 }

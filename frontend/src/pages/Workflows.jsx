@@ -25,7 +25,6 @@ export default function Workflows(){
     }finally{ setLoading(false) }
   }
 
-  // initial load + polling every 6s for realtime feel
   useEffect(()=>{
     fetchWorkflows()
     if(polling.current) clearInterval(polling.current)
@@ -36,7 +35,6 @@ export default function Workflows(){
   const [confirmState, setConfirmState] = useState({ open:false, id:null })
   async function handleDelete(id){
     if (!id) return setConfirmState({ open:false, id:null })
-    // optimistic removal: remove locally and close modal immediately
     const removed = workflows.find(w => w._id === id)
     setWorkflows(prev => prev.filter(w => w._id !== id))
     setConfirmState({ open:false, id:null })
@@ -44,44 +42,47 @@ export default function Workflows(){
 
     try{
       await api.delete(`/api/workflows/${id}`)
-      // nothing else needed — optimistic already removed
     }catch(err){
       console.error('Delete failed', err)
-      // restore the removed item on failure
       if (removed) setWorkflows(prev => [removed, ...prev])
       toast.error(err?.response?.data?.error || 'Delete failed')
     }
   }
 
   return (
-    <div className="">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-8 max-w-6xl">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold">Workflows</h1>
-          <p className="text-sm text-muted">Your automation pipelines</p>
+          <h1 className="text-2xl font-bold text-slate-900">Workflows</h1>
+          <p className="text-sm text-slate-500 mt-1">Your automation pipelines</p>
         </div>
-        <div>
-          <button onClick={()=>navigate('/workflows/new')} className="btn-primary px-4 py-2 rounded-md">+ New Workflow</button>
-        </div>
+        <button onClick={()=>navigate('/workflows/new')}
+          className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-indigo-700 transition">
+          + New Workflow
+        </button>
       </div>
 
       <AnimatePresence>
         {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {Array.from({length:8}).map((_,i)=> (
-              <motion.div key={i} initial={{opacity:0.6}} animate={{opacity:1}} className="h-36 bg-surface/40 rounded-xl animate-pulse" />
+              <motion.div key={i} initial={{opacity:0.6}} animate={{opacity:1}} className="h-40 bg-slate-200 rounded-2xl animate-pulse" />
             ))}
           </div>
         ) : (
           <>
             {workflows.length === 0 ? (
-              <div className="empty-state p-12 bg-surface/40 border border-gray-700 rounded-xl text-center">
-                <h3 className="text-lg font-medium mb-2">No workflows yet</h3>
-                <p className="text-sm text-muted mb-4">Create your first automation pipeline.</p>
-                <button onClick={()=>navigate('/workflows/new')} className="btn-primary px-4 py-2 rounded-md">+ New Workflow</button>
+              <div className="bg-white border border-slate-200 rounded-2xl p-16 text-center">
+                <div className="text-5xl mb-4">🔀</div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">No workflows yet</h3>
+                <p className="text-sm text-slate-500 mb-6">Create your first automation pipeline.</p>
+                <button onClick={()=>navigate('/workflows/new')}
+                  className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-indigo-700 transition">
+                  + New Workflow
+                </button>
               </div>
             ) : (
-              <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <motion.div layout className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
                 {workflows.map(w => (
                   <motion.div layout key={w._id} initial={{opacity:0, y:10}} animate={{opacity:1, y:0}} exit={{opacity:0}}>
                     <WorkflowCard workflow={w} onDelete={(id)=> setConfirmState({ open:true, id })} />
@@ -92,8 +93,11 @@ export default function Workflows(){
           </>
         )}
       </AnimatePresence>
-      <Modal open={confirmState.open} title="Delete workflow" onClose={()=>setConfirmState({ open:false, id:null })} primary={{ label:'Delete', onClick: ()=> handleDelete(confirmState.id) }} secondary={{ label:'Cancel', onClick: ()=> setConfirmState({ open:false, id:null }) }}>
-        <p>Are you sure you want to delete this workflow? This action cannot be undone.</p>
+
+      <Modal open={confirmState.open} title="Delete workflow" onClose={()=>setConfirmState({ open:false, id:null })}
+        primary={{ label:'Delete', onClick: ()=> handleDelete(confirmState.id) }}
+        secondary={{ label:'Cancel', onClick: ()=> setConfirmState({ open:false, id:null }) }}>
+        <p className="text-sm text-slate-600">Are you sure you want to delete this workflow? This action cannot be undone.</p>
       </Modal>
     </div>
   )

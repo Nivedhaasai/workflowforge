@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Button from '../components/Button'
 import Input from '../components/Input'
-import Logo from '../assets/logo.svg'
 
 export default function Login(){
   const { login } = useAuth()
@@ -21,37 +20,42 @@ export default function Login(){
       await login({ email, password })
       navigate('/dashboard')
     }catch(err){
-      // Prefer backend-provided error message when available (axios error.response.data.error)
       const backendMessage = err?.response?.data?.error
       setError(backendMessage || err?.message || 'Login failed')
     }finally{ setLoading(false) }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <div className="max-w-md w-full mt-6 p-6 bg-surface rounded-md shadow-lg">
-        <div className="flex items-center gap-4 mb-4">
-          <img src={Logo} alt="WorkflowForge" className="w-14 h-14" />
-          <div>
-            <div className="text-lg font-bold">WorkflowForge</div>
-            <div className="text-sm text-muted">Visual workflow automation</div>
-          </div>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-8">
+          <div className="text-3xl mb-2">⚡</div>
+          <h1 className="text-2xl font-bold text-slate-900">Welcome back</h1>
+          <p className="text-sm text-slate-500 mt-1">Sign in to your WorkflowForge account</p>
         </div>
-        <h1 className="text-2xl font-semibold mb-4">Sign in</h1>
-      {error && <div className="text-sm text-red-400 mb-3">{error}</div>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm mb-1">Email</label>
-          <Input type="email" value={email} onChange={e=>setEmail(e.target.value)} required />
+        <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
+          {error && <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-4">{error}</div>}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+              <Input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@company.com" required />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+              <Input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required />
+            </div>
+            <div>
+              <Button type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</Button>
+            </div>
+          </form>
+          <p className="text-sm text-slate-500 text-center mt-6">
+            Don't have an account?{' '}
+            <Link to="/register" className="text-indigo-600 font-semibold hover:text-indigo-700">Create one</Link>
+          </p>
         </div>
-        <div>
-          <label className="block text-sm mb-1">Password</label>
-          <Input type="password" value={password} onChange={e=>setPassword(e.target.value)} required />
-        </div>
-        <div>
-          <Button type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</Button>
-        </div>
-      </form>
+        <p className="text-center mt-6">
+          <Link to="/" className="text-sm text-slate-400 hover:text-slate-600">← Back to home</Link>
+        </p>
       </div>
     </div>
   )
