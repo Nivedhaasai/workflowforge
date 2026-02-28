@@ -15,6 +15,7 @@ const HOST = process.env.HOST || '::';
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/workflowforge';
 const FRONTEND_URL = process.env.FRONTEND_URL || process.env.CLIENT_URL || null;
 
+app.set('trust proxy', 1);
 app.use(express.json());
 
 const corsOptions = FRONTEND_URL

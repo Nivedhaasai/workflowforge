@@ -4,11 +4,16 @@ A full-stack workflow automation platform where you can visually build multi-ste
 
 This isn't a toy project. It has proper auth, a drag-and-drop builder, a real execution engine, dark mode, Docker support, and CI. I wanted something I could actually deploy and show to people.
 
+### [Live Demo →  https://workflowforge-nive.onrender.com](https://workflowforge-nive.onrender.com)
+
+> Register a new account or use the demo login: `nive@2809.com` / `nive2809`
+
 ![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=nodedotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-6.0-47A248?logo=mongodb&logoColor=white)
 ![Tailwind](https://img.shields.io/badge/Tailwind_CSS-3.4-06B6D4?logo=tailwindcss&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+![Deploy](https://img.shields.io/badge/Deployed_on-Render-46E3B7?logo=render&logoColor=white)
 
 ---
 
