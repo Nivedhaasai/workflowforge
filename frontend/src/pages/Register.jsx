@@ -38,15 +38,15 @@ export default function Register(){
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Full name</label>
-              <Input name="name" value={name} onChange={e=>setName(e.target.value)} placeholder="Jane Doe" required />
+              <Input name="name" value={name} onChange={e=>setName(e.target.value)} placeholder="Your name" required />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email</label>
-              <Input type="email" name="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@company.com" required />
+              <Input type="email" name="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" required />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Password</label>
-              <Input type="password" name="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required />
+              <Input type="password" name="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Min 6 characters" required />
             </div>
             <div>
               <Button type="submit" disabled={loading}>{loading ? 'Creating...' : 'Create account'}</Button>

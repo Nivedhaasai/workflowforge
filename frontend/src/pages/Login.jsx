@@ -38,11 +38,11 @@ export default function Login(){
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email</label>
-              <Input type="email" name="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@company.com" required />
+              <Input type="email" name="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" required />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Password</label>
-              <Input type="password" name="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required />
+              <Input type="password" name="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password" required />
             </div>
             <div>
               <Button type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</Button>
