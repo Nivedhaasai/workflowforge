@@ -3,22 +3,30 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const authRoutes = require('./routes/auth');
-const workflowRoutes = require('./routes/workflows');
-const runRoutes = require('./routes/runs');
-const { seedDefaultUser } = require('./seed')
+const rateLimit = require('express-rate-limit');
+const authRoutes = require('./backend/routes/auth');
+const workflowRoutes = require('./backend/routes/workflows');
+const runRoutes = require('./backend/routes/runs');
+const { seedDefaultUser } = require('./backend/seed')
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const HOST = process.env.HOST || '::'; // bind to IPv6 unspecified to accept IPv6 and IPv4 on most systems
+const HOST = process.env.HOST || '::';
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/workflowforge';
 const FRONTEND_URL = process.env.FRONTEND_URL || process.env.CLIENT_URL || null;
 
 // Middleware
 app.use(express.json());
-// Restrict CORS in non-dev environments using FRONTEND_URL env var
-const corsOptions = FRONTEND_URL ? { origin: FRONTEND_URL, methods: ['GET','POST','PUT','PATCH','DELETE'], credentials: true } : {};
+
+// CORS: restrict to frontend URL in production
+const corsOptions = FRONTEND_URL
+  ? { origin: FRONTEND_URL, methods: ['GET','POST','PUT','PATCH','DELETE'], credentials: true }
+  : { origin: true, credentials: true };
 app.use(cors(corsOptions));
+
+// Rate limiting on auth routes
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: 'Too many requests, try again later' } });
+app.use('/api/auth', authLimiter);
 
 if(!process.env.JWT_SECRET){
   console.warn('⚠️  WARNING: JWT_SECRET is not set. Using insecure default for development. Set JWT_SECRET in production.');

@@ -2,4 +2,6 @@ node_modules/
 .env
 .env.local
 .env.*.local
-# keep test scripts tracked by default; avoid ignoring test-*.js which CI may rely on
+*.log
+debug-*.js
+test-step*.js

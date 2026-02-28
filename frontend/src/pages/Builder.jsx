@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { getWorkflow, addNode, updateNode, deleteNode, reorderNodes, runWorkflowApi, getWorkflowRuns, getRun } from '../services/workflows'
 import RunDetails from '../components/RunDetails'
@@ -7,37 +7,57 @@ import toast from 'react-hot-toast'
 import NodeList from '../components/NodeList'
 import Modal from '../components/Modal'
 import NodeInspector from '../components/NodeInspector'
-import LoadingSpinner from '../components/LoadingSpinner'
+import StatusPill from '../components/StatusPill'
 
-function NodePalette({ onAdd }){
-  const types = [
-    { key: 'text', label: 'Text' },
-    { key: 'delay', label: 'Delay' },
-    { key: 'http', label: 'HTTP' }
-  ]
-  return (
-    <div className="p-4 space-y-3">
-      <h3 className="text-sm font-medium">Palette</h3>
-      <div className="flex flex-col gap-2 mt-2">
-        {types.map(t=> (
-          <button key={t.key} onClick={()=>onAdd(t.key)} className="w-full text-left px-3 py-2 bg-surface/50 border border-gray-700 rounded-md hover:scale-[1.01] transition-transform">{t.label}</button>
-        ))}
-      </div>
-    </div>
-  )
-}
+const NODE_CATEGORIES = [
+  {
+    label: '📦 Trigger',
+    items: [
+      { key: 'trigger', label: 'Manual Trigger', desc: 'Start the workflow', color: 'border-l-purple-500' },
+    ],
+  },
+  {
+    label: '⚙️ Actions',
+    items: [
+      { key: 'http', label: 'HTTP Request', desc: 'Fetch data from an API', color: 'border-l-blue-500' },
+      { key: 'transform', label: 'Transform Data', desc: 'Map & format data', color: 'border-l-cyan-500' },
+      { key: 'text', label: 'Send Text', desc: 'Output a text message', color: 'border-l-slate-500' },
+    ],
+  },
+  {
+    label: '⏳ Flow Control',
+    items: [
+      { key: 'condition', label: 'Condition / Branch', desc: 'Route based on data', color: 'border-l-orange-500' },
+      { key: 'delay', label: 'Delay', desc: 'Wait before continuing', color: 'border-l-yellow-500' },
+    ],
+  },
+  {
+    label: '👤 Human Tasks',
+    items: [
+      { key: 'approval', label: 'Approval Step', desc: 'Request human approval', color: 'border-l-emerald-500' },
+    ],
+  },
+]
 
-function Canvas({ nodes, onSelect, onMoveUp, onMoveDown }){
+function NodePalette({ onAdd }) {
   return (
-    <div className="canvas p-6 min-h-[400px] bg-base-bg/40 border border-gray-800 rounded-xl">
-      <div className="flex flex-wrap gap-4">
-        {nodes.map((n, idx) => (
-          <div key={n.id} className="node-card bg-surface/60 border border-gray-700 rounded-lg p-3 w-60 cursor-pointer hover:scale-[1.02] transition-transform" onClick={()=>onSelect(n)}>
-            <div className="text-sm font-medium">{n.type}</div>
-            <div className="text-xs text-muted mt-2 truncate">{JSON.stringify(n.config)}</div>
-            <div className="flex gap-2 mt-3">
-              <button onClick={(e)=>{ e.stopPropagation(); onMoveUp(idx) }} className="btn-secondary text-xs">↑</button>
-              <button onClick={(e)=>{ e.stopPropagation(); onMoveDown(idx) }} className="btn-secondary text-xs">↓</button>
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+      <h3 className="text-sm font-semibold text-slate-900 mb-3">Node Palette</h3>
+      <div className="space-y-4">
+        {NODE_CATEGORIES.map((cat, ci) => (
+          <div key={ci}>
+            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">{cat.label}</div>
+            <div className="space-y-1.5">
+              {cat.items.map((item) => (
+                <button
+                  key={item.key}
+                  onClick={() => onAdd(item.key)}
+                  className={`w-full text-left px-3 py-2.5 bg-slate-50 border border-slate-200 border-l-4 ${item.color} rounded-lg hover:bg-slate-100 hover:shadow-sm transition-all group`}
+                >
+                  <div className="text-sm font-medium text-slate-800 group-hover:text-indigo-600">{item.label}</div>
+                  <div className="text-xs text-slate-400">{item.desc}</div>
+                </button>
+              ))}
             </div>
           </div>
         ))}
@@ -46,9 +66,7 @@ function Canvas({ nodes, onSelect, onMoveUp, onMoveDown }){
   )
 }
 
-// Inline inspector was replaced by `NodeInspector` component
-
-export default function Builder(){
+export default function Builder() {
   const { id } = useParams()
   const { token } = useAuth()
   const [workflow, setWorkflow] = useState(null)
@@ -59,235 +77,243 @@ export default function Builder(){
   const [runsLoading, setRunsLoading] = useState(false)
   const [activeRunId, setActiveRunId] = useState(null)
   const [runDetailsOpen, setRunDetailsOpen] = useState(false)
+  const [lastSaved, setLastSaved] = useState(null)
+  const pollRef = useRef(null)
 
-  async function load(){
-    try{
+  async function load() {
+    try {
       setLoading(true)
       const w = await getWorkflow(id)
       setWorkflow(w)
-    }catch(err){
+    } catch (err) {
       console.error(err)
       toast.error('Failed to load workflow')
-    }finally{ setLoading(false) }
+    } finally {
+      setLoading(false)
+    }
   }
 
-  useEffect(()=>{ if (id) load() }, [id, token])
+  useEffect(() => {
+    if (id) load()
+    return () => { if (pollRef.current) clearInterval(pollRef.current) }
+  }, [id, token])
 
-  const [confirmDelete, setConfirmDelete] = useState({ open:false, id:null })
-
-  async function handleAdd(type){
-    try{
-      const node = { type, config: {} }
-      await addNode(id, node)
+  async function handleAdd(type) {
+    try {
+      await addNode(id, { type, config: {} })
       toast.success('Node added')
       await load()
-    }catch(err){ toast.error('Add failed') }
+    } catch (err) {
+      toast.error('Add failed')
+    }
   }
 
-  async function handleSave(node){
-    try{
+  async function handleSave(node) {
+    try {
       await updateNode(id, node.id, { type: node.type, config: node.config })
-      toast.success('Node saved')
+      toast.success('Workflow saved! ✓')
+      setLastSaved(new Date())
       await load()
-    }catch(err){ toast.error('Save failed') }
+    } catch (err) {
+      toast.error('Save failed')
+    }
   }
 
-  async function handleDelete(nodeId){
-    try{
+  async function handleDelete(nodeId) {
+    try {
       await deleteNode(id, nodeId)
       toast.success('Node deleted')
       setSelected(null)
       await load()
-    }catch(err){ toast.error('Delete failed') }
+    } catch (err) {
+      toast.error('Delete failed')
+    }
   }
 
-  async function handleRun(){
-    try{
+  async function handleRun() {
+    try {
       const res = await runWorkflowApi(id)
-      toast.success('Run started')
-      // open history so user can watch progress
+      toast('Workflow is running...', { icon: '⚡' })
       openRuns()
-      return res
-    }catch(err){
-      console.error('Run start failed', err)
+    } catch (err) {
       toast.error(err?.response?.data?.error || 'Failed to start run')
     }
   }
 
-  async function openRuns(){
+  async function openRuns() {
     setRunsOpen(true)
     setRunsLoading(true)
-    try{
+    try {
       const list = await getWorkflowRuns(id, 50)
       setRuns(list)
-      // if any running, start polling
-      const running = list.find(r => r.status === 'running')
-      if(running){
-        pollRuns(list)
-      }
-    }catch(err){
-      console.error('Failed to load runs', err)
+      const hasRunning = list.some(r => r.status === 'running')
+      if (hasRunning) startPolling()
+    } catch (err) {
       toast.error('Failed to load runs')
-    }finally{ setRunsLoading(false) }
+    } finally {
+      setRunsLoading(false)
+    }
   }
 
-  // Polling: check running runs periodically and refresh list; stops when none running
-  let pollTimer = null
-  async function pollRuns(initialList){
-    if(pollTimer) clearInterval(pollTimer)
-    pollTimer = setInterval(async ()=>{
-      try{
+  function startPolling() {
+    if (pollRef.current) clearInterval(pollRef.current)
+    pollRef.current = setInterval(async () => {
+      try {
         const list = await getWorkflowRuns(id, 50)
         setRuns(list)
-        const stillRunning = list.some(r => r.status === 'running')
-        if(!stillRunning){ clearInterval(pollTimer); pollTimer = null }
-      }catch(e){ console.error('Poll failed', e) }
+        if (!list.some(r => r.status === 'running')) {
+          clearInterval(pollRef.current)
+          pollRef.current = null
+          toast.success('Run completed successfully ✓')
+        }
+      } catch (e) { /* ignore */ }
     }, 1500)
   }
 
-  // Open run detail modal
-  function openRunDetails(runId){ setActiveRunId(runId); setRunDetailsOpen(true) }
+  function openRunDetails(runId) {
+    setActiveRunId(runId)
+    setRunDetailsOpen(true)
+  }
 
-  async function handleMove(idxFrom, idxTo){
-    if (!workflow) return
-    const ids = workflow.nodes.map(n=>n.id)
-    const [moved] = ids.splice(idxFrom,1)
-    ids.splice(idxTo,0,moved)
-    try{
-      await reorderNodes(id, ids)
-      await load()
-    }catch(err){ toast.error('Reorder failed') }
+  const savedAgo = lastSaved
+    ? `Last saved: ${Math.round((Date.now() - lastSaved.getTime()) / 60000)} min ago`
+    : null
+
+  // Skeleton loader for builder
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="flex items-center justify-between mb-6 animate-pulse">
+          <div><div className="h-7 bg-slate-200 rounded w-48 mb-2" /><div className="h-4 bg-slate-200 rounded w-32" /></div>
+          <div className="flex gap-3"><div className="h-10 bg-slate-200 rounded-xl w-24" /><div className="h-10 bg-slate-200 rounded-xl w-24" /></div>
+        </div>
+        <div className="grid grid-cols-12 gap-6">
+          <div className="col-span-3"><div className="h-96 bg-slate-200 rounded-2xl animate-pulse" /></div>
+          <div className="col-span-6"><div className="h-96 bg-slate-200 rounded-2xl animate-pulse" /></div>
+          <div className="col-span-3"><div className="h-64 bg-slate-200 rounded-2xl animate-pulse" /></div>
+        </div>
+      </div>
+    )
+  }
+
+  if (!workflow) {
+    return (
+      <div className="p-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center">
+          <div className="text-4xl mb-3">🔍</div>
+          <h3 className="text-lg font-medium text-slate-700 mb-1">Workflow not found</h3>
+          <p className="text-sm text-slate-500 mb-4">This workflow may have been deleted.</p>
+          <Link to="/workflows" className="text-indigo-600 font-semibold hover:text-indigo-700">← Back to Workflows</Link>
+        </div>
+      </div>
+    )
   }
 
   return (
     <div className="p-6">
+      {/* Toolbar */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold">Builder</h1>
-          <p className="text-sm text-muted">Edit workflow: {workflow?.name || (loading ? 'loading...' : 'untitled')}</p>
+          <h1 className="text-2xl font-bold text-slate-900">Builder</h1>
+          <p className="text-sm text-slate-500">Editing: {workflow.name}</p>
         </div>
         <div className="flex items-center gap-3">
-          <button type="button" onClick={handleRun} className="btn-primary px-4 py-2 rounded-md">Run Workflow</button>
-          <button type="button" onClick={openRuns} className="btn-secondary px-4 py-2 rounded-md">Run History</button>
+          {savedAgo && <span className="text-xs text-slate-400">{savedAgo}</span>}
+          <button onClick={handleRun} className="bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-emerald-600 transition-colors">
+            ▶ Run
+          </button>
+          <button onClick={openRuns} className="border-2 border-slate-300 text-slate-700 px-5 py-2.5 rounded-xl font-semibold hover:border-indigo-300 hover:text-indigo-600 transition-colors">
+            History
+          </button>
         </div>
       </div>
 
-      {/* Ensure we never render a blank page: always show either spinner, not-found, or the builder UI */}
-      {loading ? (
-        <div className="grid grid-cols-12 gap-4">
-          <div className="col-span-3">
-            <div className="p-4 space-y-3">
-              <div className="h-6 bg-surface/30 rounded w-3/4 animate-pulse" />
-              <div className="h-10 bg-surface/30 rounded animate-pulse" />
-              <div className="h-10 bg-surface/30 rounded animate-pulse" />
-            </div>
-          </div>
-
-          <div className="col-span-6">
-            <div className="canvas p-6 min-h-[360px] bg-base-bg/40 border border-gray-800 rounded-xl">
-              <div className="flex flex-wrap gap-4">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="w-60 p-3 rounded-lg bg-surface/30 animate-pulse" />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="col-span-3">
-            <div className="p-4">
-              <div className="h-10 bg-surface/30 rounded animate-pulse mb-3" />
-              <div className="h-40 bg-surface/30 rounded animate-pulse" />
-            </div>
+      {/* Builder Grid */}
+      <div className="grid grid-cols-12 gap-6">
+        {/* Palette */}
+        <div className="col-span-3">
+          <div className="sticky top-6">
+            <NodePalette onAdd={handleAdd} />
           </div>
         </div>
-      ) : !workflow ? (
-        <div className="bg-surface/40 border border-gray-700 rounded-xl p-8 text-center">
-          <h3 className="text-lg font-medium mb-2">Workflow not found</h3>
-          <p className="text-sm text-muted mb-4">This workflow may have been deleted or is inaccessible.</p>
-          <div className="flex justify-center">
-            <Link to="/workflows" className="btn-secondary px-4 py-2 rounded-md">Back to Workflows</Link>
-          </div>
-        </div>
-      ) : (
-        <div className="grid grid-cols-12 gap-4">
-          <div className="col-span-3 bg-transparent">
-            <div className="sticky top-6 bg-transparent">
-              <NodePalette onAdd={handleAdd} />
-            </div>
-          </div>
 
-          <div className="col-span-6">
-            <div className="p-2">
-              {(!workflow.nodes || workflow.nodes.length === 0) ? (
-                <div className="empty-state p-8 rounded-lg text-center">
-                  <h3 className="text-lg font-medium mb-2">No nodes yet</h3>
-                  <p className="text-sm text-muted mb-4">Add nodes from the palette to build your workflow.</p>
-                  <div className="flex justify-center">
-                    <button onClick={()=>handleAdd('text')} className="btn-primary px-4 py-2 rounded-md">Add a Text Node</button>
-                  </div>
-                </div>
-              ) : (
-                <NodeList
-                  nodes={workflow.nodes}
-                  onSelect={setSelected}
-                  onEdit={(node)=> setSelected(node)}
-                  onDelete={(node)=> setSelected(node)}
-                  onReorder={async (newIds) => {
-                    // update local state to reflect new order
-                    setWorkflow(prev => {
-                      if (!prev) return prev
-                      const reordered = newIds.map(i => prev.nodes.find(n => n.id === i))
-                      return { ...prev, nodes: reordered }
-                    })
-                    // call backend to persist order
-                    try{
-                      await reorderNodes(id, newIds)
-                      toast.success('Order updated')
-                      console.log('reorder ids:', newIds)
-                    }catch(err){
-                      console.error('reorder failed', err)
-                      toast.error('Failed to update order')
-                      await load()
-                    }
-                  }}
-                />
-              )}
-            </div>
-          </div>
-
-          <div className="col-span-3">
-            <div className="sticky top-6">
-              <NodeInspector node={selected} onSave={handleSave} onDelete={handleDelete} onClose={()=>setSelected(null)} />
-            </div>
-          </div>
-        </div>
-      )}
-      
-        <Modal open={runsOpen} title="Run History" onClose={()=>setRunsOpen(false)} primary={null} secondary={null}>
-          {runsLoading ? (
-            <div className="p-4"><LoadingSpinner /></div>
-          ) : (!runs || runs.length === 0) ? (
-            <div className="p-4 text-center">
-              <p className="text-sm text-muted">No runs yet. Click "Run Workflow" to start one.</p>
+        {/* Canvas */}
+        <div className="col-span-6">
+          {(!workflow.nodes || workflow.nodes.length === 0) ? (
+            <div className="border-2 border-dashed border-slate-300 rounded-2xl p-12 text-center min-h-[400px] flex flex-col items-center justify-center">
+              <div className="text-4xl mb-3">🎨</div>
+              <h3 className="text-lg font-medium text-slate-700 mb-1">No nodes yet</h3>
+              <p className="text-sm text-slate-500 mb-4">Drag a node from the left panel to get started</p>
+              <button onClick={() => handleAdd('trigger')} className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
+                + Add Trigger Node
+              </button>
             </div>
           ) : (
-            <div className="space-y-3">
-              {runs.map(r => (
-                <div key={r.id} className="p-3 border rounded bg-surface/30 flex justify-between items-center">
-                  <div>
-                    <div className="font-medium">{r.status}</div>
-                    <div className="text-xs text-muted">{new Date(r.createdAt).toLocaleString()}</div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-sm text-muted">{r.durationMs != null ? `${r.durationMs} ms` : '-'}</div>
-                    <button type="button" onClick={()=>openRunDetails(r.id)} className="btn-secondary text-xs">View details</button>
-                  </div>
-                </div>
-              ))}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 min-h-[400px]">
+              <NodeList
+                nodes={workflow.nodes}
+                onSelect={setSelected}
+                onEdit={setSelected}
+                onDelete={(node) => setSelected(node)}
+                onReorder={async (newIds) => {
+                  setWorkflow(prev => {
+                    if (!prev) return prev
+                    const reordered = newIds.map(i => prev.nodes.find(n => n.id === i))
+                    return { ...prev, nodes: reordered }
+                  })
+                  try {
+                    await reorderNodes(id, newIds)
+                    toast.success('Order updated')
+                  } catch (err) {
+                    toast.error('Failed to update order')
+                    await load()
+                  }
+                }}
+              />
             </div>
           )}
-        </Modal>
-        <RunDetails runId={activeRunId} open={runDetailsOpen} onClose={()=>setRunDetailsOpen(false)} />
+        </div>
+
+        {/* Inspector */}
+        <div className="col-span-3">
+          <div className="sticky top-6">
+            <NodeInspector node={selected} onSave={handleSave} onDelete={handleDelete} onClose={() => setSelected(null)} />
+          </div>
+        </div>
+      </div>
+
+      {/* Run History Modal */}
+      <Modal open={runsOpen} title="Run History" onClose={() => setRunsOpen(false)} primary={null} secondary={null}>
+        {runsLoading ? (
+          <div className="space-y-3 p-4">
+            {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-16 bg-slate-100 rounded-xl animate-pulse" />)}
+          </div>
+        ) : (!runs || runs.length === 0) ? (
+          <div className="p-8 text-center">
+            <div className="text-3xl mb-2">🏃</div>
+            <p className="text-sm text-slate-500">No runs yet. Click "Run" to start one.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {runs.map(r => (
+              <div key={r.id} className="p-3 border border-slate-200 rounded-xl flex justify-between items-center hover:bg-slate-50 transition-colors">
+                <div>
+                  <StatusPill status={r.status} />
+                  <div className="text-xs text-slate-400 mt-1">{new Date(r.createdAt).toLocaleString()}</div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-sm text-slate-500">{r.durationMs != null ? `${(r.durationMs / 1000).toFixed(1)}s` : '—'}</div>
+                  <button onClick={() => openRunDetails(r.id)} className="text-indigo-600 text-xs font-semibold hover:text-indigo-700">
+                    View details
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Modal>
+
+      <RunDetails runId={activeRunId} open={runDetailsOpen} onClose={() => setRunDetailsOpen(false)} />
     </div>
   )
 }
