@@ -26,8 +26,10 @@ WorkflowForge is a **Kissflow-inspired** SaaS workflow automation platform that 
 | ▶️ **One-Click Execution** | Run workflows instantly with real-time step-by-step progress |
 | ✅ **Human-in-the-Loop Approvals** | Pause workflows at approval gates — approve or reject from the UI |
 | 📊 **Dashboard & Analytics** | Live stats — total workflows, runs, success rates, pending approvals |
+| 🏃 **Run History Page** | Filterable list of all runs across workflows with status tabs |
 | 📋 **Pre-Built Templates** | Clone from a library of starter workflows to get productive fast |
-| 🔐 **JWT Authentication** | Secure user accounts with token-based auth |
+| 🌙 **Dark / Light Mode** | System-aware theme toggle with `localStorage` persistence — every page |
+| 🔐 **JWT Authentication** | Secure user accounts with token-based auth + auto-refresh interceptors |
 | 🐳 **Docker-Ready** | One-command deployment with Docker Compose |
 
 ### Supported Node Types
@@ -77,18 +79,10 @@ PORT=5000
 FRONTEND_URL=http://localhost:5173
 ```
 
-### 3. Seed Sample Data
+### 3. Start Development Servers
 
 ```bash
-node scripts/dev-seed.js
-```
-
-> **Demo credentials:** `devtester+1@example.com` / `Password123!`
-
-### 4. Start Development Servers
-
-```bash
-# Terminal 1 — Backend API
+# Terminal 1 — Backend API (auto-seeds demo user + 2 demo workflows)
 node index.js
 
 # Terminal 2 — Frontend (Vite dev server)
@@ -96,6 +90,9 @@ cd frontend && npm run dev
 ```
 
 Open **http://localhost:5173** and log in.
+
+> **Demo credentials:** `nive@2809.com` / `nive2809`  
+> Two demo workflows ("Hello World Pipeline" and "API Fetch & Approval") are seeded automatically on first run.
 
 ---
 
@@ -110,6 +107,8 @@ docker compose up --build -d
 | Frontend | `5173` | Nginx serving React SPA |
 | Backend | `5000` | Express API server |
 | MongoDB | `27017` | Database |
+
+The frontend Dockerfile accepts a `VITE_API_URL` build argument (defaults to `http://localhost:5000`). Override it in `docker-compose.yml` when deploying to a remote host.
 
 The frontend Dockerfile includes nginx SPA routing — all client-side routes work on page refresh.
 
@@ -142,6 +141,7 @@ All endpoints require `Authorization: Bearer <token>` except auth routes.
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| `GET` | `/api/runs` | List all runs for the current user |
 | `GET` | `/api/runs/:id` | Get run details with per-step results |
 | `POST` | `/api/runs/:id/approve` | Approve or reject a pending approval step |
 
@@ -174,7 +174,7 @@ All endpoints require `Authorization: Bearer <token>` except auth routes.
 
 | Layer | Technology |
 |-------|-----------|
-| **Frontend** | React 18, Vite 5, Tailwind CSS 3.4, Framer Motion, @dnd-kit |
+| **Frontend** | React 18, Vite 5, Tailwind CSS 3.4 (`darkMode: 'class'`), Framer Motion, @dnd-kit |
 | **Backend** | Node.js 20, Express, Mongoose, JWT (jsonwebtoken) |
 | **Database** | MongoDB 6.0 |
 | **DevOps** | Docker, Docker Compose, Nginx, GitHub Actions CI |
@@ -189,15 +189,16 @@ workflowforge/
 ├── routes/                  # API routes (auth, workflows, runs)
 ├── middleware/               # JWT auth middleware
 ├── backend/
+│   ├── seed.js              # Auto-seed user + demo workflows
 │   ├── services/            # Workflow runner engine
 │   └── queue/               # Queue publisher (BullMQ-ready)
 ├── frontend/
 │   ├── src/
-│   │   ├── pages/           # Route pages (Dashboard, Builder, etc.)
-│   │   ├── components/      # Reusable UI components
-│   │   ├── context/         # Auth context provider
+│   │   ├── pages/           # Route pages (Dashboard, Builder, RunsPage, etc.)
+│   │   ├── components/      # Reusable UI (ThemeToggle, NodeCard, Modal, …)
+│   │   ├── context/         # AuthContext + ThemeContext providers
 │   │   ├── services/        # API client functions
-│   │   └── utils/           # Axios instance + helpers
+│   │   └── utils/           # Axios instance with interceptors
 │   ├── nginx.conf           # SPA routing config
 │   └── Dockerfile           # Multi-stage build
 ├── docker-compose.yml       # Full-stack orchestration

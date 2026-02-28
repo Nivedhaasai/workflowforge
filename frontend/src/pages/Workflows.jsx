@@ -53,11 +53,11 @@ export default function Workflows(){
     <div className="p-8 max-w-6xl">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Workflows</h1>
-          <p className="text-sm text-slate-500 mt-1">Your automation pipelines</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Workflows</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Your automation pipelines</p>
         </div>
         <button onClick={()=>navigate('/workflows/new')}
-          className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-indigo-700 transition">
+          className="bg-indigo-600 dark:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-indigo-700 dark:hover:bg-indigo-600 transition">
           + New Workflow
         </button>
       </div>
@@ -66,18 +66,18 @@ export default function Workflows(){
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {Array.from({length:8}).map((_,i)=> (
-              <motion.div key={i} initial={{opacity:0.6}} animate={{opacity:1}} className="h-40 bg-slate-200 rounded-2xl animate-pulse" />
+              <motion.div key={i} initial={{opacity:0.6}} animate={{opacity:1}} className="h-40 bg-slate-200 dark:bg-slate-700 rounded-2xl animate-pulse" />
             ))}
           </div>
         ) : (
           <>
             {workflows.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-2xl p-16 text-center">
+              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-16 text-center">
                 <div className="text-5xl mb-4">🔀</div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">No workflows yet</h3>
-                <p className="text-sm text-slate-500 mb-6">Create your first automation pipeline.</p>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">No workflows yet</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Create your first automation pipeline.</p>
                 <button onClick={()=>navigate('/workflows/new')}
-                  className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-indigo-700 transition">
+                  className="bg-indigo-600 dark:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:bg-indigo-700 dark:hover:bg-indigo-600 transition">
                   + New Workflow
                 </button>
               </div>
@@ -97,7 +97,7 @@ export default function Workflows(){
       <Modal open={confirmState.open} title="Delete workflow" onClose={()=>setConfirmState({ open:false, id:null })}
         primary={{ label:'Delete', onClick: ()=> handleDelete(confirmState.id) }}
         secondary={{ label:'Cancel', onClick: ()=> setConfirmState({ open:false, id:null }) }}>
-        <p className="text-sm text-slate-600">Are you sure you want to delete this workflow? This action cannot be undone.</p>
+        <p className="text-sm text-slate-600 dark:text-slate-400">Are you sure you want to delete this workflow? This action cannot be undone.</p>
       </Modal>
     </div>
   )

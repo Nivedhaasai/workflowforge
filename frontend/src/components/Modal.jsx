@@ -59,7 +59,7 @@ export default function Modal({ open, title, children, primary, secondary, onClo
           className="fixed inset-0 z-50 flex items-center justify-center"
           aria-hidden={!open}
         >
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={()=> onClose && onClose()} />
+          <div className="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm" onClick={()=> onClose && onClose()} />
 
           <motion.div
             id="wf-modal"
@@ -72,16 +72,16 @@ export default function Modal({ open, title, children, primary, secondary, onClo
             animate={{scale:1, opacity:1}}
             exit={{scale:0.98, opacity:0}}
             transition={{duration:0.16}}
-            className="z-50 max-w-lg w-full bg-white border border-slate-200 p-6 rounded-2xl shadow-2xl max-h-[85vh] overflow-y-auto"
+            className="z-50 max-w-lg w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl shadow-2xl max-h-[85vh] overflow-y-auto"
           >
             <div className="flex items-start justify-between">
               <div>
-                <h3 id="wf-modal-title" className="text-lg font-semibold text-slate-900">{title}</h3>
+                <h3 id="wf-modal-title" className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h3>
               </div>
               <button
                 type="button"
                 onClick={()=> onClose && onClose()}
-                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-lg -mr-2 transition"
+                className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 p-2 rounded-lg -mr-2 transition"
                 aria-label="Close dialog"
                 title="Close"
               >
@@ -91,14 +91,14 @@ export default function Modal({ open, title, children, primary, secondary, onClo
               </button>
             </div>
 
-            <div className="mt-4">{children}</div>
+            <div className="mt-4 text-slate-700 dark:text-slate-300">{children}</div>
 
             <div className="mt-6 flex justify-end gap-3">
               {secondary && (
                 <button
                   type="button"
                   onClick={()=> secondary.onClick && secondary.onClick()}
-                  className="px-4 py-2 rounded-xl text-sm font-medium border border-slate-200 text-slate-700 hover:bg-slate-50 transition"
+                  className="px-4 py-2 rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
                 >{secondary.label}</button>
               )}
 
@@ -106,7 +106,7 @@ export default function Modal({ open, title, children, primary, secondary, onClo
                 <button
                   type="button"
                   onClick={()=> primary.onClick && primary.onClick()}
-                  className="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition"
+                  className="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 dark:bg-indigo-500 text-white hover:bg-indigo-700 dark:hover:bg-indigo-600 transition"
                 >{primary.label}</button>
               ) : null}
             </div>

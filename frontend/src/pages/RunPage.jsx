@@ -7,8 +7,8 @@ export default function RunPage(){
   return (
     <div className="p-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Run Details</h1>
-        <p className="text-sm text-slate-500 mt-1">Run ID: <strong className="text-slate-700">{id?.slice(-8)}</strong></p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Run Details</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Run ID: <strong className="text-slate-700 dark:text-slate-300">{id?.slice(-8)}</strong></p>
       </div>
       <RunDetails runId={id} open={true} onClose={()=>{}} />
     </div>

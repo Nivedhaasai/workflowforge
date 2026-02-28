@@ -10,17 +10,15 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    console.log('AuthContext: starting auth init, token?', !!authToken)
     async function initAuth() {
       if (authToken) {
         localStorage.setItem('wf_token', authToken)
         api.defaults.headers.common['Authorization'] = `Bearer ${authToken}`
         try {
           const res = await api.get('/api/auth/me')
-          console.log('AuthContext: /me result', res.data)
           setUser(res.data)
         } catch (e) {
-          console.warn('me fetch failed', e?.message)
+          // Token expired or invalid
         } finally {
           setLoading(false)
         }

@@ -23,7 +23,7 @@ Implementation notes:
 
 Migration path (minimal changes):
 
-1. Create a `queue/publish.js` helper that calls `queue.add('run', { runId, workflowId })` instead of calling runner directly.
+1. Create a `queue/publisher.js` helper that calls `queue.add('run', { runId, workflowId })` instead of calling runner directly.
 2. Implement a small `worker.js` process that subscribes to the queue and calls the existing `runWorkflow` function (or a refactored worker-focused runner).
 3. Keep the current in-process runner as a fallback for local/dev.
 

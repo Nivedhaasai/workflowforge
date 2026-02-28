@@ -5,11 +5,13 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "seed": "node scripts/dev-seed.js",
+    "lint": "eslint . --ext .js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Nivedhaa Sai",
+  "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "bullmq": "^1.79.0",

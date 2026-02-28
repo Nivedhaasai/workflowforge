@@ -130,7 +130,7 @@ router.post('/:workflowId/nodes', authMiddleware, async (req, res) => {
     workflow.nodes.push(newNode);
     workflow.markModified('nodes');
     await workflow.save();
-    return res.status(201).json(newNode);
+    return res.status(201).json(workflow);
   } catch (error) {
     console.error('Create node error:', error.message);
     return res.status(500).json({ error: 'Internal server error' });

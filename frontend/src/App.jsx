@@ -8,6 +8,7 @@ import EditWorkflow from './pages/EditWorkflow'
 import Workflows from './pages/Workflows'
 import Builder from './pages/Builder'
 import RunPage from './pages/RunPage'
+import RunsPage from './pages/RunsPage'
 import Templates from './pages/Templates'
 import Landing from './pages/Landing'
 import Layout from './layout/Layout'
@@ -31,6 +32,7 @@ export default function App(){
       <Route path="/workflows/:id/builder" element={<ProtectedRoute><Layout><Builder/></Layout></ProtectedRoute>} />
       <Route path="/workflows/:id/edit" element={<ProtectedRoute><Layout><EditWorkflow/></Layout></ProtectedRoute>} />
       <Route path="/templates" element={<ProtectedRoute><Layout><Templates/></Layout></ProtectedRoute>} />
+      <Route path="/runs" element={<ProtectedRoute><Layout><RunsPage/></Layout></ProtectedRoute>} />
       <Route path="/runs/:id" element={<ProtectedRoute><Layout><RunPage/></Layout></ProtectedRoute>} />
 
       {/* Catch-all */}

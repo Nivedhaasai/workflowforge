@@ -1,10 +1,13 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ThemeToggle from './ThemeToggle';
+import { History } from 'lucide-react';
 
 const NAV = [
   { to: '/dashboard',  icon: '📊', label: 'Dashboard'  },
   { to: '/workflows',  icon: '🔀', label: 'Workflows'   },
   { to: '/templates',  icon: '📋', label: 'Templates'   },
+  { to: '/runs',       icon: null, lucide: true, label: 'Run History' },
 ];
 
 export default function Sidebar() {
@@ -21,12 +24,12 @@ export default function Sidebar() {
     : 'WF';
 
   return (
-    <aside className="w-60 bg-white border-r border-slate-200 flex flex-col h-screen sticky top-0">
+    <aside className="w-60 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 flex flex-col h-screen sticky top-0">
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-slate-100">
+      <div className="px-5 py-5 border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/dashboard')}>
           <span className="text-xl">⚡</span>
-          <span className="font-bold text-slate-900 text-lg">WorkflowForge</span>
+          <span className="font-bold text-slate-900 dark:text-white text-lg">WorkflowForge</span>
         </div>
       </div>
 
@@ -39,32 +42,35 @@ export default function Sidebar() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 isActive
-                  ? 'bg-indigo-50 text-indigo-700'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                  ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
               }`
             }>
-            <span>{item.icon}</span>
+            {item.lucide ? <History size={18} /> : <span>{item.icon}</span>}
             <span>{item.label}</span>
           </NavLink>
         ))}
       </nav>
 
       {/* User + Logout */}
-      <div className="px-3 py-4 border-t border-slate-100 space-y-2">
+      <div className="px-3 py-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
         {user && (
           <div className="flex items-center gap-3 px-3 py-2">
-            <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-xs font-bold">
+            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-xs font-bold">
               {initials}
             </div>
-            <span className="text-sm text-slate-700 font-medium truncate">{user.name || user.email}</span>
+            <span className="text-sm text-slate-700 dark:text-slate-300 font-medium truncate">{user.name || user.email}</span>
           </div>
         )}
-        <button
-          onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100 transition">
-          <span>🚪</span>
-          <span>Logout</span>
-        </button>
+        <div className="flex items-center justify-between px-3">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 py-2 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition">
+            <span>🚪</span>
+            <span>Logout</span>
+          </button>
+          <ThemeToggle />
+        </div>
       </div>
     </aside>
   );

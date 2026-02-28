@@ -26,35 +26,35 @@ export default function Login(){
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center px-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <div className="text-3xl mb-2">⚡</div>
-          <h1 className="text-2xl font-bold text-slate-900">Welcome back</h1>
-          <p className="text-sm text-slate-500 mt-1">Sign in to your WorkflowForge account</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Welcome back</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Sign in to your WorkflowForge account</p>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-sm">
-          {error && <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-4 py-3 mb-4">{error}</div>}
+        <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+          {error && <div className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30 border border-red-100 dark:border-red-800 rounded-xl px-4 py-3 mb-4">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
-              <Input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@company.com" required />
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Email</label>
+              <Input type="email" name="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@company.com" required />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
-              <Input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required />
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Password</label>
+              <Input type="password" name="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="••••••••" required />
             </div>
             <div>
               <Button type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Sign in'}</Button>
             </div>
           </form>
-          <p className="text-sm text-slate-500 text-center mt-6">
+          <p className="text-sm text-slate-500 dark:text-slate-400 text-center mt-6">
             Don't have an account?{' '}
-            <Link to="/register" className="text-indigo-600 font-semibold hover:text-indigo-700">Create one</Link>
+            <Link to="/register" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:text-indigo-700 dark:hover:text-indigo-300">Create one</Link>
           </p>
         </div>
         <p className="text-center mt-6">
-          <Link to="/" className="text-sm text-slate-400 hover:text-slate-600">← Back to home</Link>
+          <Link to="/" className="text-sm text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300">← Back to home</Link>
         </p>
       </div>
     </div>

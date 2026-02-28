@@ -1,6 +1,9 @@
 const Workflow = require('../models/Workflow')
 const Run = require('../models/Run')
 
+// Ensure fetch is available (Node 18+ has native, fallback for older)
+const fetch = globalThis.fetch || (() => { throw new Error('fetch is not available — upgrade to Node 18+') })
+
 /**
  * Execute a single node based on its type.
  * @param {Object} node - The node to execute

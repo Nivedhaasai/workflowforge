@@ -7,7 +7,7 @@ const Workflow = require('../backend/models/Workflow')
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/workflowforge'
 
 async function main(){
-  await mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  await mongoose.connect(MONGO_URI)
   console.log('Connected to Mongo')
 
   const email = 'devtester+1@example.com'

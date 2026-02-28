@@ -41,21 +41,21 @@ const NODE_CATEGORIES = [
 
 function NodePalette({ onAdd }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
-      <h3 className="text-sm font-semibold text-slate-900 mb-3">Node Palette</h3>
+    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-4">
+      <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Node Palette</h3>
       <div className="space-y-4">
         {NODE_CATEGORIES.map((cat, ci) => (
           <div key={ci}>
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">{cat.label}</div>
+            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">{cat.label}</div>
             <div className="space-y-1.5">
               {cat.items.map((item) => (
                 <button
                   key={item.key}
                   onClick={() => onAdd(item.key)}
-                  className={`w-full text-left px-3 py-2.5 bg-slate-50 border border-slate-200 border-l-4 ${item.color} rounded-lg hover:bg-slate-100 hover:shadow-sm transition-all group`}
+                  className={`w-full text-left px-3 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 border-l-4 ${item.color} rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 hover:shadow-sm transition-all group`}
                 >
-                  <div className="text-sm font-medium text-slate-800 group-hover:text-indigo-600">{item.label}</div>
-                  <div className="text-xs text-slate-400">{item.desc}</div>
+                  <div className="text-sm font-medium text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{item.label}</div>
+                  <div className="text-xs text-slate-400 dark:text-slate-500">{item.desc}</div>
                 </button>
               ))}
             </div>
@@ -99,8 +99,17 @@ export default function Builder() {
   }, [id, token])
 
   async function handleAdd(type) {
+    const defaultConfigs = {
+      trigger: {},
+      text: { message: 'Hello from WorkflowForge!' },
+      delay: { seconds: 5, ms: 5000 },
+      http: { url: 'https://httpbin.org/get', method: 'GET' },
+      condition: { field: 'status', operator: '==', value: 'active' },
+      approval: { assignedTo: '', instructions: 'Please review and approve.' },
+      transform: { template: 'Result: {{message}}' }
+    }
     try {
-      await addNode(id, { type, config: {} })
+      await addNode(id, { type, config: defaultConfigs[type] || {} })
       toast.success('Node added')
       await load()
     } catch (err) {
@@ -184,13 +193,13 @@ export default function Builder() {
     return (
       <div className="p-6">
         <div className="flex items-center justify-between mb-6 animate-pulse">
-          <div><div className="h-7 bg-slate-200 rounded w-48 mb-2" /><div className="h-4 bg-slate-200 rounded w-32" /></div>
-          <div className="flex gap-3"><div className="h-10 bg-slate-200 rounded-xl w-24" /><div className="h-10 bg-slate-200 rounded-xl w-24" /></div>
+          <div><div className="h-7 bg-slate-200 dark:bg-slate-700 rounded w-48 mb-2" /><div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-32" /></div>
+          <div className="flex gap-3"><div className="h-10 bg-slate-200 dark:bg-slate-700 rounded-xl w-24" /><div className="h-10 bg-slate-200 dark:bg-slate-700 rounded-xl w-24" /></div>
         </div>
         <div className="grid grid-cols-12 gap-6">
-          <div className="col-span-3"><div className="h-96 bg-slate-200 rounded-2xl animate-pulse" /></div>
-          <div className="col-span-6"><div className="h-96 bg-slate-200 rounded-2xl animate-pulse" /></div>
-          <div className="col-span-3"><div className="h-64 bg-slate-200 rounded-2xl animate-pulse" /></div>
+          <div className="col-span-3"><div className="h-96 bg-slate-200 dark:bg-slate-700 rounded-2xl animate-pulse" /></div>
+          <div className="col-span-6"><div className="h-96 bg-slate-200 dark:bg-slate-700 rounded-2xl animate-pulse" /></div>
+          <div className="col-span-3"><div className="h-64 bg-slate-200 dark:bg-slate-700 rounded-2xl animate-pulse" /></div>
         </div>
       </div>
     )
@@ -199,11 +208,11 @@ export default function Builder() {
   if (!workflow) {
     return (
       <div className="p-6">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-12 text-center">
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-12 text-center">
           <div className="text-4xl mb-3">🔍</div>
-          <h3 className="text-lg font-medium text-slate-700 mb-1">Workflow not found</h3>
-          <p className="text-sm text-slate-500 mb-4">This workflow may have been deleted.</p>
-          <Link to="/workflows" className="text-indigo-600 font-semibold hover:text-indigo-700">← Back to Workflows</Link>
+          <h3 className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-1">Workflow not found</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">This workflow may have been deleted.</p>
+          <Link to="/workflows" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:text-indigo-700 dark:hover:text-indigo-300">← Back to Workflows</Link>
         </div>
       </div>
     )
@@ -214,15 +223,15 @@ export default function Builder() {
       {/* Toolbar */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Builder</h1>
-          <p className="text-sm text-slate-500">Editing: {workflow.name}</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Builder</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Editing: {workflow.name}</p>
         </div>
         <div className="flex items-center gap-3">
-          {savedAgo && <span className="text-xs text-slate-400">{savedAgo}</span>}
-          <button onClick={handleRun} className="bg-emerald-500 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-emerald-600 transition-colors">
+          {savedAgo && <span className="text-xs text-slate-400 dark:text-slate-500">{savedAgo}</span>}
+          <button onClick={handleRun} className="bg-emerald-500 dark:bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-emerald-600 dark:hover:bg-emerald-700 transition-colors">
             ▶ Run
           </button>
-          <button onClick={openRuns} className="border-2 border-slate-300 text-slate-700 px-5 py-2.5 rounded-xl font-semibold hover:border-indigo-300 hover:text-indigo-600 transition-colors">
+          <button onClick={openRuns} className="border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 px-5 py-2.5 rounded-xl font-semibold hover:border-indigo-300 dark:hover:border-indigo-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
             History
           </button>
         </div>
@@ -240,16 +249,16 @@ export default function Builder() {
         {/* Canvas */}
         <div className="col-span-6">
           {(!workflow.nodes || workflow.nodes.length === 0) ? (
-            <div className="border-2 border-dashed border-slate-300 rounded-2xl p-12 text-center min-h-[400px] flex flex-col items-center justify-center">
+            <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-2xl p-12 text-center min-h-[400px] flex flex-col items-center justify-center">
               <div className="text-4xl mb-3">🎨</div>
-              <h3 className="text-lg font-medium text-slate-700 mb-1">No nodes yet</h3>
-              <p className="text-sm text-slate-500 mb-4">Drag a node from the left panel to get started</p>
-              <button onClick={() => handleAdd('trigger')} className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition-colors">
+              <h3 className="text-lg font-medium text-slate-700 dark:text-slate-300 mb-1">No nodes yet</h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Drag a node from the left panel to get started</p>
+              <button onClick={() => handleAdd('trigger')} className="bg-indigo-600 dark:bg-indigo-500 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors">
                 + Add Trigger Node
               </button>
             </div>
           ) : (
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 min-h-[400px]">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 p-4 min-h-[400px]">
               <NodeList
                 nodes={workflow.nodes}
                 onSelect={setSelected}
@@ -286,24 +295,24 @@ export default function Builder() {
       <Modal open={runsOpen} title="Run History" onClose={() => setRunsOpen(false)} primary={null} secondary={null}>
         {runsLoading ? (
           <div className="space-y-3 p-4">
-            {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-16 bg-slate-100 rounded-xl animate-pulse" />)}
+            {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-16 bg-slate-100 dark:bg-slate-800 rounded-xl animate-pulse" />)}
           </div>
         ) : (!runs || runs.length === 0) ? (
           <div className="p-8 text-center">
             <div className="text-3xl mb-2">🏃</div>
-            <p className="text-sm text-slate-500">No runs yet. Click "Run" to start one.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">No runs yet. Click "Run" to start one.</p>
           </div>
         ) : (
           <div className="space-y-2">
             {runs.map(r => (
-              <div key={r.id} className="p-3 border border-slate-200 rounded-xl flex justify-between items-center hover:bg-slate-50 transition-colors">
+              <div key={r.id} className="p-3 border border-slate-200 dark:border-slate-700 rounded-xl flex justify-between items-center hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                 <div>
                   <StatusPill status={r.status} />
-                  <div className="text-xs text-slate-400 mt-1">{new Date(r.createdAt).toLocaleString()}</div>
+                  <div className="text-xs text-slate-400 dark:text-slate-500 mt-1">{new Date(r.createdAt).toLocaleString()}</div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="text-sm text-slate-500">{r.durationMs != null ? `${(r.durationMs / 1000).toFixed(1)}s` : '—'}</div>
-                  <button onClick={() => openRunDetails(r.id)} className="text-indigo-600 text-xs font-semibold hover:text-indigo-700">
+                  <div className="text-sm text-slate-500 dark:text-slate-400">{r.durationMs != null ? `${(r.durationMs / 1000).toFixed(1)}s` : '—'}</div>
+                  <button onClick={() => openRunDetails(r.id)} className="text-indigo-600 dark:text-indigo-400 text-xs font-semibold hover:text-indigo-700 dark:hover:text-indigo-300">
                     View details
                   </button>
                 </div>

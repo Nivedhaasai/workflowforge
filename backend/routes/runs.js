@@ -6,7 +6,6 @@ const { resumeAfterApproval } = require('../services/workflowRunner');
 
 const router = express.Router();
 
-// GET /api/runs - List all runs for current user
 router.get('/', authMiddleware, async (req, res) => {
   try {
     const limit = parseInt(req.query.limit, 10) || 20;
@@ -34,7 +33,6 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
-// POST /api/runs/:runId/approve - Approve or reject an approval step
 router.post('/:runId/approve', authMiddleware, async (req, res) => {
   try {
     const { runId } = req.params;
@@ -63,7 +61,6 @@ router.post('/:runId/approve', authMiddleware, async (req, res) => {
   }
 });
 
-// GET /api/runs/:runId - Get run details (owner only)
 router.get('/:runId', authMiddleware, async (req, res) => {
   try {
     const { runId } = req.params;
@@ -72,10 +69,20 @@ router.get('/:runId', authMiddleware, async (req, res) => {
     if (run.owner.toString() !== req.user.id) return res.status(403).json({ error: 'Forbidden' });
 
     let workflowInfo = { id: run.workflow };
+    let nodeMap = {};
     try {
-      const wf = await Workflow.findById(run.workflow).select('name').lean();
-      if (wf) workflowInfo.name = wf.name;
+      const wf = await Workflow.findById(run.workflow).select('name nodes').lean();
+      if (wf) {
+        workflowInfo.name = wf.name;
+        (wf.nodes || []).forEach(n => { nodeMap[n.id] = n; });
+      }
     } catch (e) { /* ignore */ }
+
+    const enrichedSteps = (run.steps || []).map(s => ({
+      ...s,
+      nodeType: nodeMap[s.nodeId]?.type || null,
+      label: nodeMap[s.nodeId]?.config?.message?.slice(0, 40) || nodeMap[s.nodeId]?.type || s.nodeId,
+    }));
 
     return res.status(200).json({
       id: run._id,
@@ -85,7 +92,7 @@ router.get('/:runId', authMiddleware, async (req, res) => {
       createdAt: run.createdAt,
       updatedAt: run.updatedAt,
       durationMs: run.durationMs || (run.updatedAt && run.createdAt ? new Date(run.updatedAt) - new Date(run.createdAt) : null),
-      steps: run.steps || [],
+      steps: enrichedSteps,
       auditLog: run.auditLog || [],
       currentNodeIndex: run.currentNodeIndex || 0,
     });

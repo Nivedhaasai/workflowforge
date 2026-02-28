@@ -1,8 +1,8 @@
 const COLOR_MAP = {
-  indigo:  { bg: 'bg-indigo-50',  text: 'text-indigo-700',  num: 'text-indigo-900'  },
-  blue:    { bg: 'bg-blue-50',    text: 'text-blue-700',    num: 'text-blue-900'    },
-  emerald: { bg: 'bg-emerald-50', text: 'text-emerald-700', num: 'text-emerald-900' },
-  amber:   { bg: 'bg-amber-50',   text: 'text-amber-700',   num: 'text-amber-900'   },
+  indigo:  { bg: 'bg-indigo-50 dark:bg-indigo-900/30',  text: 'text-indigo-700 dark:text-indigo-300',  num: 'text-indigo-900 dark:text-indigo-200'  },
+  blue:    { bg: 'bg-blue-50 dark:bg-blue-900/30',    text: 'text-blue-700 dark:text-blue-300',    num: 'text-blue-900 dark:text-blue-200'    },
+  emerald: { bg: 'bg-emerald-50 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', num: 'text-emerald-900 dark:text-emerald-200' },
+  amber:   { bg: 'bg-amber-50 dark:bg-amber-900/30',   text: 'text-amber-700 dark:text-amber-300',   num: 'text-amber-900 dark:text-amber-200'   },
 };
 
 export default function StatCard({ icon, label, value, color = 'indigo' }) {

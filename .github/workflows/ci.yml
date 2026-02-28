@@ -49,7 +49,18 @@ jobs:
           MONGO_URI: mongodb://localhost:27017/workflowforge_ci
           JWT_SECRET: testsecret
         run: |
-          node test-step6-verify.js
+          # Health check
+          curl -sf http://localhost:5000/ || exit 1
+          # Register + login
+          curl -sf -X POST http://localhost:5000/api/auth/register \
+            -H 'Content-Type: application/json' \
+            -d '{"name":"CI","email":"ci@test.local","password":"ci12345"}' || true
+          TOKEN=$(curl -sf -X POST http://localhost:5000/api/auth/login \
+            -H 'Content-Type: application/json' \
+            -d '{"email":"ci@test.local","password":"ci12345"}' | node -e "process.stdin.on('data',d=>{console.log(JSON.parse(d).token)})")
+          # Authenticated endpoint
+          curl -sf http://localhost:5000/api/workflows -H "Authorization: Bearer $TOKEN"
+          echo "Smoke tests passed"
 
   e2e:
     needs: smoke

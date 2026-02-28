@@ -26,8 +26,8 @@ export default function NodeCard({ node, onClick, onEdit, onDelete, dragHandlePr
   })()
 
   return (
-    <motion.div layout className={`group bg-white border border-slate-200 border-l-4 ${cfg.color} rounded-xl p-3 w-full flex items-start gap-3 hover:shadow-sm transition-all`}>
-      <div {...(dragHandleProps||{})} className="cursor-grab p-2 rounded-md text-slate-400 opacity-80 hover:opacity-100 hover:text-slate-600">
+    <motion.div layout className={`group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 ${cfg.color} rounded-xl p-3 w-full flex items-start gap-3 hover:shadow-sm transition-all`}>
+      <div {...(dragHandleProps||{})} className="cursor-grab p-2 rounded-md text-slate-400 dark:text-slate-600 opacity-80 hover:opacity-100 hover:text-slate-600 dark:hover:text-slate-400">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 6h.01M6 6h.01M14 6h.01M10 12h.01M6 12h.01M14 12h.01M10 18h.01M6 18h.01M14 18h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
       </div>
 
@@ -37,19 +37,19 @@ export default function NodeCard({ node, onClick, onEdit, onDelete, dragHandlePr
             {cfg.icon}
           </div>
           <div className="truncate">
-            <div className="text-sm font-medium text-slate-800 truncate">{node.config?.label || node.type}</div>
-            <div className="text-xs text-slate-400 truncate">{summary}</div>
+            <div className="text-sm font-medium text-slate-800 dark:text-white truncate">{node.config?.label || node.type}</div>
+            <div className="text-xs text-slate-400 dark:text-slate-500 truncate">{summary}</div>
           </div>
         </div>
       </div>
 
       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1.5">
         <button type="button" onClick={(e) => { e.stopPropagation(); onEdit && onEdit(node) }}
-          className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition font-medium">
+          className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition font-medium">
           Edit
         </button>
         <button type="button" onClick={(e) => { e.stopPropagation(); onDelete && onDelete(node) }}
-          className="text-xs px-2.5 py-1 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition font-medium">
+          className="text-xs px-2.5 py-1 rounded-lg border border-red-200 dark:border-red-800 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition font-medium">
           Delete
         </button>
       </div>

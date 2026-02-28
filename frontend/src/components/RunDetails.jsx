@@ -46,9 +46,9 @@ export default function RunDetails({ runId, open, onClose }){
   },[open, runId])
 
   function renderResult(r){
-    if(r === null || r === undefined) return <span className="text-slate-400">—</span>
-    if(typeof r === 'object') return <pre className="bg-slate-50 p-3 rounded-xl text-xs overflow-auto border border-slate-100">{JSON.stringify(r,null,2)}</pre>
-    return <div className="text-sm text-slate-700">{String(r)}</div>
+    if(r === null || r === undefined) return <span className="text-slate-400 dark:text-slate-500">—</span>
+    if(typeof r === 'object') return <pre className="bg-slate-50 dark:bg-slate-800 p-3 rounded-xl text-xs overflow-auto border border-slate-100 dark:border-slate-700 text-slate-800 dark:text-slate-200">{JSON.stringify(r,null,2)}</pre>
+    return <div className="text-sm text-slate-700 dark:text-slate-300">{String(r)}</div>
   }
 
   async function copyText(text){
@@ -78,22 +78,22 @@ export default function RunDetails({ runId, open, onClose }){
       {loading ? (
         <div className="p-4"><LoadingSpinner /></div>
       ) : (!run) ? (
-        <div className="p-4 text-center text-sm text-slate-400">No run data available.</div>
+        <div className="p-4 text-center text-sm text-slate-400 dark:text-slate-500">No run data available.</div>
       ) : (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <StatusPill status={run.status} />
-              <span className="text-xs text-slate-400">{new Date(run.createdAt).toLocaleString()}</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500">{new Date(run.createdAt).toLocaleString()}</span>
             </div>
-            <div className="text-sm text-slate-500">{run.durationMs != null ? `${(run.durationMs / 1000).toFixed(1)}s` : '—'}</div>
+            <div className="text-sm text-slate-500 dark:text-slate-400">{run.durationMs != null ? `${(run.durationMs / 1000).toFixed(1)}s` : '—'}</div>
           </div>
 
           {/* Approval action banner */}
           {run.status === 'waiting_approval' && (
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-              <div className="text-sm font-semibold text-amber-800 mb-2">⏳ Waiting for Approval</div>
-              <p className="text-xs text-amber-600 mb-3">This workflow is paused and waiting for a human decision.</p>
+            <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+              <div className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2">⏳ Waiting for Approval</div>
+              <p className="text-xs text-amber-600 dark:text-amber-400 mb-3">This workflow is paused and waiting for a human decision.</p>
               <div className="flex gap-2">
                 <button
                   onClick={() => handleApprovalDecision('approved')}
@@ -121,17 +121,17 @@ export default function RunDetails({ runId, open, onClose }){
               const icon = NODE_ICONS[nodeType] || '▦'
 
               return (
-                <div key={i} className="bg-white border border-slate-200 rounded-xl p-4">
+                <div key={i} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-4">
                   <div className="flex justify-between items-start gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center text-sm">
+                      <div className="w-8 h-8 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center text-sm">
                         {icon}
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-slate-800">
+                        <div className="text-sm font-medium text-slate-800 dark:text-slate-200">
                           {step.label || nodeType || nodeId}
                         </div>
-                        <div className="text-xs text-slate-400 mt-0.5">
+                        <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
                           <StatusPill status={status} />
                         </div>
                       </div>
@@ -139,7 +139,7 @@ export default function RunDetails({ runId, open, onClose }){
                     <button
                       type="button"
                       onClick={() => copyText(output ?? error)}
-                      className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition font-medium"
+                      className="text-xs px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition font-medium"
                     >
                       Copy
                     </button>
@@ -148,12 +148,12 @@ export default function RunDetails({ runId, open, onClose }){
                   <div className="mt-3">
                     {error ? (
                       <div>
-                        <div className="text-xs font-medium text-red-600 mb-1">Error</div>
-                        <pre className="bg-red-50 text-red-700 p-3 rounded-xl text-xs overflow-auto border border-red-100">{String(error)}</pre>
+                        <div className="text-xs font-medium text-red-600 dark:text-red-400 mb-1">Error</div>
+                        <pre className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 p-3 rounded-xl text-xs overflow-auto border border-red-100 dark:border-red-800">{String(error)}</pre>
                       </div>
                     ) : (
                       <div>
-                        <div className="text-xs font-medium text-slate-500 mb-1">Output</div>
+                        <div className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Output</div>
                         {renderResult(output)}
                       </div>
                     )}
@@ -161,7 +161,7 @@ export default function RunDetails({ runId, open, onClose }){
 
                   {/* Approval buttons for individual pending approval step */}
                   {nodeType === 'approval' && status === 'pending' && run.status === 'waiting_approval' && (
-                    <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100">
+                    <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-700">
                       <button
                         onClick={() => handleApprovalDecision('approved')}
                         className="bg-emerald-600 text-white px-4 py-1.5 rounded-lg text-sm font-semibold hover:bg-emerald-700 transition">

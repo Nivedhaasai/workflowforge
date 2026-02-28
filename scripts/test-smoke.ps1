@@ -1,21 +1,35 @@
-# Start backend, run smoke verification, then stop backend
+#!/usr/bin/env pwsh
+# Quick smoke test — starts backend, runs a health check, then stops
 param()
 
-Write-Host "Killing any existing node processes..."
-taskkill /F /IM node.exe /T 2>$null | Out-Null
-Start-Sleep -Seconds 1
+$ErrorActionPreference = 'Stop'
+$ROOT = Split-Path -Parent $PSScriptRoot
 
-Write-Host "Starting backend in background..."
-$job = Start-Job -ScriptBlock { Set-Location 'c:\Users\91994\OneDrive - DAV BHEL Ranipet\Documents\WorkflowForge'; node index.js } 
-Start-Sleep -Seconds 5
+Write-Host 'Starting backend...'
+$job = Start-Job -ScriptBlock { param($r) Set-Location $r; node index.js } -ArgumentList $ROOT
+Start-Sleep -Seconds 6
 
 try {
-    Write-Host "Running smoke verification..."
-    node test-step6-verify.js
+    $health = Invoke-RestMethod -Uri http://localhost:5000/ -TimeoutSec 10
+    Write-Host "Backend health: $($health.message)"
+
+    Invoke-RestMethod -Uri http://localhost:5000/api/auth/register `
+        -Method POST -ContentType 'application/json' `
+        -Body '{"name":"Smoke","email":"smoke@test.local","password":"smoke123"}' `
+        -ErrorAction SilentlyContinue | Out-Null
+    $login = Invoke-RestMethod -Uri http://localhost:5000/api/auth/login `
+        -Method POST -ContentType 'application/json' `
+        -Body '{"email":"smoke@test.local","password":"smoke123"}'
+    $h = @{ Authorization = "Bearer $($login.token)" }
+
+    $workflows = Invoke-RestMethod -Uri http://localhost:5000/api/workflows -Headers $h
+    Write-Host "Workflows: $($workflows.Count)"
+
+    Write-Host 'Smoke test PASSED'
 } catch {
-    Write-Error "Smoke script failed: $_"
+    Write-Error "Smoke test FAILED: $_"
+    exit 1
 } finally {
-    Write-Host "Stopping background backend job..."
     Stop-Job $job -ErrorAction SilentlyContinue
     Remove-Job $job -ErrorAction SilentlyContinue
 }

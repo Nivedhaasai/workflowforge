@@ -6,3 +6,5 @@ node_modules/
 debug-*.js
 test-step*.js
 frontend/dist/
+server-errors.log
+.nodemonignore

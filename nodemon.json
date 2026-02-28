@@ -1,0 +1,5 @@
+{
+  "watch": ["index.js", "backend/", "middleware/", "models/", "routes/"],
+  "ignore": ["node_modules/", "frontend/", "e2e/", "scripts/", "docs/"],
+  "ext": "js,json"
+}

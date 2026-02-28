@@ -11,6 +11,12 @@ body {
   color: #0F172A;
 }
 
+.dark body,
+html.dark body {
+  background: #020617;
+  color: #E2E8F0;
+}
+
 :focus-visible {
   outline: 2px solid #6366F1;
   outline-offset: 2px;

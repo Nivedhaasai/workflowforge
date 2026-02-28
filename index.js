@@ -15,10 +15,8 @@ const HOST = process.env.HOST || '::';
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/workflowforge';
 const FRONTEND_URL = process.env.FRONTEND_URL || process.env.CLIENT_URL || null;
 
-// Middleware
 app.use(express.json());
 
-// CORS: restrict to frontend URL in production
 const corsOptions = FRONTEND_URL
   ? { origin: FRONTEND_URL, methods: ['GET','POST','PUT','PATCH','DELETE'], credentials: true }
   : { origin: true, credentials: true };
@@ -33,35 +31,23 @@ if(!process.env.JWT_SECRET){
   process.env.JWT_SECRET = 'dev_secret_not_for_prod';
 }
 
-// MongoDB Connection
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect(MONGO_URI)
   .then(() => {
     console.log('✓ MongoDB connected successfully');
-    // Fire-and-forget seeding of a default admin user (non-blocking)
-    try { seedDefaultUser(); } catch (e) { console.error('Seed call error:', e?.message || e) }
+    seedDefaultUser().catch(e => console.error('Seed error:', e?.message || e));
   })
   .catch((err) => {
     console.error('✗ MongoDB connection failed:', err.message);
   });
 
-// Health Check Route
 app.get('/', (req, res) => {
   res.json({ message: 'workflowforge api is running' });
 });
 
-// Auth Routes
 app.use('/api/auth', authRoutes);
-
-// Workflow Routes
 app.use('/api/workflows', workflowRoutes);
-
-// Run Routes
 app.use('/api/runs', runRoutes);
 
-// Start Server
 const server = app.listen(PORT, HOST, () => {
   const addr = server.address();
   const hostForLog = addr && addr.address ? addr.address : HOST;
