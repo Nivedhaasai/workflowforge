@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import api from '../utils/api'
+import { getWorkflows, deleteWorkflow } from '../services/workflows'
 import { useAuth } from '../context/AuthContext'
 import WorkflowCard from '../components/WorkflowCard'
 import { useNavigate } from 'react-router-dom'
@@ -17,8 +17,8 @@ export default function Workflows(){
   async function fetchWorkflows(){
     try{
       setLoading(true)
-      const res = await api.get('/api/workflows')
-      setWorkflows(res.data || [])
+      const data = await getWorkflows()
+      setWorkflows(data || [])
     }catch(err){
       console.error('Failed to load workflows', err)
       toast.error(err?.response?.data?.error || 'Failed to load workflows')
@@ -41,7 +41,7 @@ export default function Workflows(){
     toast.success('Workflow deleted')
 
     try{
-      await api.delete(`/api/workflows/${id}`)
+      await deleteWorkflow(id)
     }catch(err){
       console.error('Delete failed', err)
       if (removed) setWorkflows(prev => [removed, ...prev])

@@ -18,7 +18,16 @@ if (DISABLE_QUEUE) {
 
   let connection;
   try {
-    connection = REDIS_URL ? new IORedis(REDIS_URL) : new IORedis({ host: REDIS_HOST, port: REDIS_PORT });
+    connection = REDIS_URL
+      ? new IORedis(REDIS_URL, { maxRetriesPerRequest: null, retryStrategy: () => null })
+      : new IORedis({ host: REDIS_HOST, port: REDIS_PORT, maxRetriesPerRequest: null, retryStrategy: () => null });
+
+    connection.on('error', (err) => {
+      if (!connection._wfLogged) {
+        console.warn('⚠️  Redis unavailable — queue disabled. Run with DISABLE_QUEUE=true to suppress.');
+        connection._wfLogged = true;
+      }
+    });
   } catch (e) {
     console.error('Failed to create Redis connection for queue:', e?.message || e);
     connection = null;

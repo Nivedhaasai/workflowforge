@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getWorkflow, addNode, updateNode, deleteNode, reorderNodes, runWorkflowApi, getWorkflowRuns, getRun } from '../services/workflows'
+import { getWorkflow, addNode, updateNode, deleteNode, reorderNodes, runWorkflowApi, getWorkflowRuns } from '../services/workflows'
 import RunDetails from '../components/RunDetails'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'

@@ -1,10 +1,8 @@
-cd frontend
-npm install   # if you haven't installed deps
-npm run devrequire('dotenv').config()
+require('dotenv').config()
 const mongoose = require('mongoose')
 const bcrypt = require('bcryptjs')
-const User = require('../models/User')
-const Workflow = require('../models/Workflow')
+const User = require('../backend/models/User')
+const Workflow = require('../backend/models/Workflow')
 
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/workflowforge'
 
